@@ -15,7 +15,7 @@ export async function createDevice(data: Prisma.PeripheralDeviceCreateInput) {
       data,
       include: {
         device_type: true,
-        gateway: true,
+        gateway: { include: { tenant: true } },
       },
     });
     return device;
@@ -32,7 +32,7 @@ export async function listDevices() {
   const devices = await prisma.peripheralDevice.findMany({
     include: {
       device_type: true,
-      gateway: true,
+      gateway: { include: { tenant: true } },
     },
   });
   return devices;
@@ -43,7 +43,7 @@ export async function getDeviceById(id: string) {
     where: { id },
     include: {
       device_type: true,
-      gateway: true,
+      gateway: { include: { tenant: true } },
     },
   });
   return device;
@@ -58,7 +58,7 @@ export async function updateDevice(
     data,
     include: {
       device_type: true,
-      gateway: true,
+      gateway: { include: { tenant: true } },
     },
   });
   return device;
@@ -100,7 +100,7 @@ export async function attachDeviceToGateway(
     data: { gateway_id: gatewayId },
     include: {
       device_type: true,
-      gateway: true,
+      gateway: { include: { tenant: true } },
     },
   });
   return device;
@@ -112,7 +112,6 @@ export async function detachDeviceFromGateway(deviceId: string) {
     data: { gateway_id: null },
     include: {
       device_type: true,
-      gateway: true,
     },
   });
   return device;

@@ -401,6 +401,38 @@ const swaggerDefinition: SwaggerDefinition = {
         required: ['error'],
       },
     },
+    responses: {
+      BadRequest: {
+        description: 'Bad Request',
+        content: {
+          'application/json': {
+            schema: {
+              $ref: '#/components/schemas/Error'
+            }
+          }
+        }
+      },
+      NotFound: {
+        description: 'Resource not found',
+        content: {
+          'application/json': {
+            schema: {
+              $ref: '#/components/schemas/Error'
+            }
+          }
+        }
+      },
+      InternalServerError: {
+        description: 'Internal Server Error',
+        content: {
+          'application/json': {
+            schema: {
+              $ref: '#/components/schemas/Error'
+            }
+          }
+        }
+      }
+    }
   },
 };
 

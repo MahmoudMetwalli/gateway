@@ -8,6 +8,7 @@ import { PORT } from './config';
 import tenantRouter from './routers/tenant.router';
 import gatewayRouter from './routers/geteway.router';
 import deviceRouter from './routers/device.router';
+import deviceTypeRouter from './routers/deviceType.router';
 
 const app = express();
 
@@ -35,6 +36,7 @@ app.get('/', (req, res) => {
 app.use('/api/tenants', tenantRouter);
 app.use('/api/gateways', gatewayRouter);
 app.use('/api/devices', deviceRouter);
+app.use('/api/device-types', deviceTypeRouter);
 
 // 404 handler
 app.use((req, res, next) => {

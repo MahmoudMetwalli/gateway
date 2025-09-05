@@ -1,117 +1,85 @@
 import type { Request, Response, NextFunction } from 'express';
-import type { CreatePeripheralDeviceDTO, UpdatePeripheralDeviceDTO } from '../schemas/device.schema';
-import * as deviceRepo from '../repositories/device.repository';
+import type { CreateDeviceTypeDTO, UpdateDeviceTypeDTO } from '../schemas/deviceType.schema';
+import * as deviceTypeRepo from '../repositories/deviceType.repository';
 
-export const createDevice = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const createDeviceType = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const deviceData: CreatePeripheralDeviceDTO = req.body;
-    
-    // Check if UID already exists
-    const uidExists = await deviceRepo.uidExists(BigInt(deviceData.uid));
-    if (uidExists) {
-      res.status(409).json({ error: 'Device UID already exists' });
-      return;
-    }
+    const deviceTypeData: CreateDeviceTypeDTO = req.body;
 
-    // Prepare data for Prisma with device_type relationship
+    // Prepare data for Prisma
     const prismaData = {
-      uid: BigInt(deviceData.uid),
-      vendor: deviceData.vendor,
-      status: deviceData.status,
-      device_type: {
-        connect: { id: deviceData.device_type_id }
-      },
-      ...(deviceData.gateway_id && {
-        gateway: {
-          connect: { id: deviceData.gateway_id }
-        }
-      })
+      name: deviceTypeData.name,
+      description: deviceTypeData.description,
     };
 
-    const newDevice = await deviceRepo.createDevice(prismaData);
-    res.status(201).json(newDevice);
+    const newDeviceType = await deviceTypeRepo.createDeviceType(prismaData);
+    res.status(201).json(newDeviceType);
   } catch (error) {
     next(error);
   }
 };
 
-export const listDevices = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const listDeviceTypes = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const devices = await deviceRepo.listDevices();
-    res.json(devices);
+    const deviceTypes = await deviceTypeRepo.listDeviceTypes();
+    res.json(deviceTypes);
   } catch (error) {
     next(error);
   }
 };
-
-export const getDeviceById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const getDeviceTypeById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { id } = req.params;
-    const device = await deviceRepo.getDeviceById(id!);
+    const deviceType = await deviceTypeRepo.getDeviceTypeById(Number(id));
     
-    if (!device) {
-      res.status(404).json({ error: 'Device not found' });
+    if (!deviceType) {
+      res.status(404).json({ error: 'Device type not found' });
       return;
     }
     
-    res.json(device);
+    res.json(deviceType);
   } catch (error) {
     next(error);
   }
 };
 
-export const updateDevice = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const updateDeviceType = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { id } = req.params;
-    const deviceData: UpdatePeripheralDeviceDTO = req.body;
-    
-    // Check if device exists
-    const existingDevice = await deviceRepo.getDeviceById(id!);
-    if (!existingDevice) {
-      res.status(404).json({ error: 'Device not found' });
+    const deviceTypeData: UpdateDeviceTypeDTO = req.body;
+
+    // Check if device type exists
+    const existingDeviceType = await deviceTypeRepo.getDeviceTypeById(Number(id));
+    if (!existingDeviceType) {
+      res.status(404).json({ error: 'Device type not found' });
       return;
     }
 
-    // Filter out undefined values and prepare update data for Prisma
-    const updateData: Record<string, any> = {};
-    if (deviceData.vendor !== undefined) updateData.vendor = deviceData.vendor;
-    if (deviceData.status !== undefined) updateData.status = deviceData.status;
-    if (deviceData.last_seen_at !== undefined) updateData.last_seen_at = deviceData.last_seen_at;
-    if (deviceData.device_type_id !== undefined) {
-      updateData.device_type = {
-        connect: { id: deviceData.device_type_id }
-      };
-    }
+    // Prepare data for Prisma
+    const updateData: any = {};
+    if (deviceTypeData.name !== undefined) updateData.name = deviceTypeData.name;
+    if (deviceTypeData.description !== undefined) updateData.description = deviceTypeData.description;
 
-    const updatedDevice = await deviceRepo.updateDevice(id!, updateData);
-    res.json(updatedDevice);
+    const updatedDeviceType = await deviceTypeRepo.updateDeviceType(Number(id), updateData);
+    res.json(updatedDeviceType);
   } catch (error) {
     next(error);
   }
 };
 
-export const deleteDevice = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const deleteDeviceType = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { id } = req.params;
     
-    // Check if device exists
-    const existingDevice = await deviceRepo.getDeviceById(id!);
-    if (!existingDevice) {
-      res.status(404).json({ error: 'Device not found' });
+    // Check if device type exists
+    const existingDeviceType = await deviceTypeRepo.getDeviceTypeById(Number(id));
+    if (!existingDeviceType) {
+      res.status(404).json({ error: 'Device type not found' });
       return;
     }
 
-    await deviceRepo.deleteDevice(id!);
+    await deviceTypeRepo.deleteDeviceType(Number(id));
     res.status(204).send();
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const getOrphanDevices = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try {
-    const devices = await deviceRepo.getOrphanDevices();
-    res.json(devices);
   } catch (error) {
     next(error);
   }

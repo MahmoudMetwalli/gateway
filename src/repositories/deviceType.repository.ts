@@ -1,102 +1,33 @@
 import { prisma } from "../config";
 import { Prisma } from "@prisma/client";
 
-export async function uidExists(uid: bigint): Promise<boolean> {
-  const device = await prisma.peripheralDevice.findUnique({
-    where: { uid }
+export async function createDeviceType(data: Prisma.DeviceTypeCreateInput) {
+  const deviceType = await prisma.deviceType.create({ 
+    data
   });
-  return !!device;
+  return deviceType;
 }
 
-export async function createDevice(data: Prisma.PeripheralDeviceCreateInput) {
-  const device = await prisma.peripheralDevice.create({ 
-    data,
-    include: {
-      device_type: true,
-      gateway: true
-    }
-  });
-  return device;
+export async function listDeviceTypes() {
+  const deviceTypes = await prisma.deviceType.findMany();
+  return deviceTypes;
 }
 
-export async function listDevices() {
-  const devices = await prisma.peripheralDevice.findMany({
-    include: {
-      device_type: true,
-      gateway: true
-    }
-  });
-  return devices;
-}
-
-export async function getDeviceById(id: string) {
-  const device = await prisma.peripheralDevice.findUnique({
+export async function getDeviceTypeById(id: number) {
+  const deviceType = await prisma.deviceType.findUnique({
     where: { id },
-    include: {
-      device_type: true,
-      gateway: true
-    }
   });
-  return device;
+  return deviceType;
 }
 
-export async function updateDevice(id: string, data: Prisma.PeripheralDeviceUpdateInput) {
-  const device = await prisma.peripheralDevice.update({ 
+export async function updateDeviceType(id: number, data: Prisma.DeviceTypeUpdateInput) {
+  const deviceType = await prisma.deviceType.update({ 
     where: { id }, 
-    data,
-    include: {
-      device_type: true,
-      gateway: true
-    }
+    data
   });
-  return device;
+  return deviceType;
 }
 
-export async function deleteDevice(id: string) {
-  return prisma.peripheralDevice.delete({ where: { id } });
-}
-
-export async function getOrphanDevices() {
-  const devices = await prisma.peripheralDevice.findMany({
-    where: {
-      gateway_id: null
-    },
-    include: {
-      device_type: true
-    }
-  });
-  return devices;
-}
-
-export async function countDevicesInGateway(gatewayId: string): Promise<number> {
-  const count = await prisma.peripheralDevice.count({
-    where: {
-      gateway_id: gatewayId
-    }
-  });
-  return count;
-}
-
-export async function attachDeviceToGateway(deviceId: string, gatewayId: string) {
-  const device = await prisma.peripheralDevice.update({
-    where: { id: deviceId },
-    data: { gateway_id: gatewayId },
-    include: {
-      device_type: true,
-      gateway: true
-    }
-  });
-  return device;
-}
-
-export async function detachDeviceFromGateway(deviceId: string) {
-  const device = await prisma.peripheralDevice.update({
-    where: { id: deviceId },
-    data: { gateway_id: null },
-    include: {
-      device_type: true,
-      gateway: true
-    }
-  });
-  return device;
+export async function deleteDeviceType(id: number) {
+  return prisma.deviceType.delete({ where: { id } });
 }

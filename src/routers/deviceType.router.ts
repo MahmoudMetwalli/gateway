@@ -1,32 +1,31 @@
 import { Router } from "express";
 import { validateRequest } from '../middlewares/validation.middleware';
-import { CreatePeripheralDeviceSchema, UpdatePeripheralDeviceSchema } from '../schemas/device.schema';
-import * as deviceController from '../controllers/device.controller';
+import { CreateDeviceTypeSchema, UpdateDeviceTypeSchema } from '../schemas/deviceType.schema';
+import * as deviceTypeController from '../controllers/deviceType.controller';
 
 const router = Router();
 
-// GET orphan devices (devices not assigned to any gateway) - must be before /:id route
-router.get('/orphans', deviceController.getOrphanDevices);
 
-// CREATE device
+
+// CREATE device type
 router.post('/', 
-  validateRequest({ body: CreatePeripheralDeviceSchema }),
-  deviceController.createDevice
+  validateRequest({ body: CreateDeviceTypeSchema }),
+  deviceTypeController.createDeviceType
 );
 
-// LIST all devices
-router.get('/', deviceController.listDevices);
+// LIST all device types
+router.get('/', deviceTypeController.listDeviceTypes);
 
-// GET single device by ID
-router.get('/:id', deviceController.getDeviceById);
+// GET single device type by ID
+router.get('/:id', deviceTypeController.getDeviceTypeById);
 
-// UPDATE device
+// UPDATE device type
 router.put('/:id',
-  validateRequest({ body: UpdatePeripheralDeviceSchema }),
-  deviceController.updateDevice
+  validateRequest({ body: UpdateDeviceTypeSchema }),
+  deviceTypeController.updateDeviceType
 );
 
-// DELETE device
-router.delete('/:id', deviceController.deleteDevice);
+// DELETE device type
+router.delete('/:id', deviceTypeController.deleteDeviceType);
 
 export default router;

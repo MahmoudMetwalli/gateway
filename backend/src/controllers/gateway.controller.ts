@@ -2,6 +2,7 @@ import type { Request, Response, NextFunction } from 'express';
 import type { CreateGatewayDTO, UpdateGatewayDTO } from '../schemas/gateway.schema';
 import * as gatewayRepo from '../repositories/gateway.repository';
 import * as deviceRepo from '../repositories/device.repository';
+import { serializeBigInt } from '../utils/bigint';
 
 export const createGateway = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -41,7 +42,7 @@ export const createGateway = async (req: Request, res: Response, next: NextFunct
       ipv4_address: newGateway.ipv4_address
     });
 
-    res.status(201).json(newGateway);
+    res.status(201).json(serializeBigInt(newGateway));
   } catch (error) {
     next(error);
   }
@@ -50,7 +51,7 @@ export const createGateway = async (req: Request, res: Response, next: NextFunct
 export const listGateways = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const gateways = await gatewayRepo.listGateways();
-    res.json(gateways);
+    res.json(serializeBigInt(gateways));
   } catch (error) {
     next(error);
   }
@@ -66,7 +67,7 @@ export const getGatewayById = async (req: Request, res: Response, next: NextFunc
       return;
     }
     
-    res.json(gateway);
+    res.json(serializeBigInt(gateway));
   } catch (error) {
     next(error);
   }
@@ -106,7 +107,7 @@ export const updateGateway = async (req: Request, res: Response, next: NextFunct
       changes: updateData
     });
 
-    res.json(updatedGateway);
+    res.json(serializeBigInt(updatedGateway));
   } catch (error) {
     next(error);
   }
@@ -177,7 +178,7 @@ export const attachDevice = async (req: Request, res: Response, next: NextFuncti
       device_uid: device.uid.toString()
     });
 
-    res.json(updatedDevice);
+    res.json(serializeBigInt(updatedDevice));
   } catch (error) {
     next(error);
   }
@@ -215,7 +216,7 @@ export const detachDevice = async (req: Request, res: Response, next: NextFuncti
       device_uid: device.uid.toString()
     });
 
-    res.json(updatedDevice);
+    res.json(serializeBigInt(updatedDevice));
   } catch (error) {
     next(error);
   }

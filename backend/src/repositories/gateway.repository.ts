@@ -18,14 +18,22 @@ export async function ipv4AddressExists(ipv4Address: string): Promise<boolean> {
 }
 
 export async function createGateway(data: Prisma.GatewayCreateInput) {
-  const gateway = await prisma.gateway.create({
-    data,
-    include: {
-      devices: { include: { device_type: true } },
-      tenant: true,
-    },
-  });
-  return gateway;
+  try {
+    const gateway = await prisma.gateway.create({
+      data,
+      include: {
+        devices: { include: { device_type: true } },
+        tenant: true,
+      },
+    });
+    return gateway;
+  } catch (error: any) {
+    if (error.code === "P2025") {
+      throw new Error("Tenant not found");
+    } else {
+      throw error;
+    }
+  }
 }
 
 export async function getGatewayById(id: string) {

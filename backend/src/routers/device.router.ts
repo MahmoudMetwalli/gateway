@@ -5,28 +5,164 @@ import * as deviceController from '../controllers/device.controller';
 
 const router = Router();
 
-// GET orphan devices (devices not assigned to any gateway) - must be before /:id route
+/**
+ * @swagger
+ * /api/devices/orphans:
+ *   get:
+ *     summary: Get orphan devices (devices not assigned to any gateway)
+ *     tags: [Devices]
+ *     responses:
+ *       200:
+ *         description: List of orphan devices
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/PeripheralDevice'
+ *       500:
+ *         $ref: '#/components/responses/InternalServerError'
+ */
 router.get('/orphans', deviceController.getOrphanDevices);
 
-// CREATE device
+/**
+ * @swagger
+ * /api/devices:
+ *   post:
+ *     summary: Create a new device
+ *     tags: [Devices]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/CreatePeripheralDeviceRequest'
+ *     responses:
+ *       201:
+ *         description: Device created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PeripheralDevice'
+ *       400:
+ *         $ref: '#/components/responses/BadRequest'
+ *       500:
+ *         $ref: '#/components/responses/InternalServerError'
+ */
 router.post('/', 
   validateRequest({ body: CreatePeripheralDeviceSchema }),
   deviceController.createDevice
 );
 
-// LIST all devices
+/**
+ * @swagger
+ * /api/devices:
+ *   get:
+ *     summary: Get all devices
+ *     tags: [Devices]
+ *     responses:
+ *       200:
+ *         description: List of devices
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/PeripheralDevice'
+ *       500:
+ *         $ref: '#/components/responses/InternalServerError'
+ */
 router.get('/', deviceController.listDevices);
 
-// GET single device by ID
+/**
+ * @swagger
+ * /api/devices/{id}:
+ *   get:
+ *     summary: Get device by ID
+ *     tags: [Devices]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: Device ID
+ *     responses:
+ *       200:
+ *         description: Device details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PeripheralDevice'
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *       500:
+ *         $ref: '#/components/responses/InternalServerError'
+ */
 router.get('/:id', deviceController.getDeviceById);
 
-// UPDATE device
+/**
+ * @swagger
+ * /api/devices/{id}:
+ *   put:
+ *     summary: Update device
+ *     tags: [Devices]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: Device ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/UpdatePeripheralDeviceRequest'
+ *     responses:
+ *       200:
+ *         description: Device updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PeripheralDevice'
+ *       400:
+ *         $ref: '#/components/responses/BadRequest'
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *       500:
+ *         $ref: '#/components/responses/InternalServerError'
+ */
 router.put('/:id',
   validateRequest({ body: UpdatePeripheralDeviceSchema }),
   deviceController.updateDevice
 );
 
-// DELETE device
+/**
+ * @swagger
+ * /api/devices/{id}:
+ *   delete:
+ *     summary: Delete device
+ *     tags: [Devices]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: Device ID
+ *     responses:
+ *       204:
+ *         description: Device deleted successfully
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *       500:
+ *         $ref: '#/components/responses/InternalServerError'
+ */
 router.delete('/:id', deviceController.deleteDevice);
 
 export default router;

@@ -8,7 +8,7 @@ model PeripheralDevice {
   id             String       @id @default(uuid()) @db.Uuid
   uid            BigInt       @unique
   vendor         String
-  status         DeviceStatus
+  status         DeviceStatus @default(OFFLINE)
   created_at     DateTime     @default(now())
   last_seen      DateTime?
   gateway        Gateway?      @relation(fields: [gateway_id], references: [id], onDelete: SetNull)

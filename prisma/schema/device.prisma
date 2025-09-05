@@ -11,9 +11,9 @@ model PeripheralDevice {
   status         DeviceStatus
   created_at     DateTime     @default(now())
   last_seen      DateTime?
-  gateway        Gateway      @relation(fields: [gateway_id], references: [id])
-  gateway_id     String       @db.Uuid
-  device_type    DeviceType   @relation(fields: [device_type_id], references: [id])
+  gateway        Gateway?      @relation(fields: [gateway_id], references: [id], onDelete: SetNull)
+  gateway_id     String?      @db.Uuid
+  device_type    DeviceType   @relation(fields: [device_type_id], references: [id], onDelete: Restrict)
   device_type_id Int
 }
 

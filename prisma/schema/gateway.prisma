@@ -6,14 +6,12 @@ model Gateway {
   created_at    DateTime           @default(now())
   updated_at    DateTime           @updatedAt
   devices       PeripheralDevice[]
-  logs          GatewayLog[]
-  tenant        Tenant           @relation(fields: [tenant_id], references: [id])
+  tenant        Tenant           @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
   tenant_id     String           @db.Uuid
 }
 
 model GatewayLog {
   id         String   @id @default(uuid()) @db.Uuid
-  gateway    Gateway  @relation(fields: [gateway_id], references: [id])
   gateway_id String   @db.Uuid
   action     String
   details    Json

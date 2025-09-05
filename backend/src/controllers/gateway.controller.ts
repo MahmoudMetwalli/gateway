@@ -2,7 +2,7 @@ import type { Request, Response, NextFunction } from 'express';
 import type { CreateGatewayDTO, UpdateGatewayDTO } from '../schemas/gateway.schema';
 import * as gatewayRepo from '../repositories/gateway.repository';
 import * as deviceRepo from '../repositories/device.repository';
-import { serializeBigInt } from '../utils/bigint';
+import { serialize } from '../utils/serializer';
 
 export const createGateway = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -42,7 +42,7 @@ export const createGateway = async (req: Request, res: Response, next: NextFunct
       ipv4_address: newGateway.ipv4_address
     });
 
-    res.status(201).json(serializeBigInt(newGateway));
+    res.status(201).json(serialize(newGateway));
   } catch (error) {
     next(error);
   }
@@ -51,7 +51,7 @@ export const createGateway = async (req: Request, res: Response, next: NextFunct
 export const listGateways = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const gateways = await gatewayRepo.listGateways();
-    res.json(serializeBigInt(gateways));
+    res.json(serialize(gateways));
   } catch (error) {
     next(error);
   }
@@ -67,7 +67,7 @@ export const getGatewayById = async (req: Request, res: Response, next: NextFunc
       return;
     }
     
-    res.json(serializeBigInt(gateway));
+    res.json(serialize(gateway));
   } catch (error) {
     next(error);
   }
@@ -101,13 +101,13 @@ export const updateGateway = async (req: Request, res: Response, next: NextFunct
     if (gatewayData.ipv4_address !== undefined) updateData.ipv4_address = gatewayData.ipv4_address;
     if (gatewayData.location !== undefined) updateData.location = gatewayData.location;
 
-    const updatedGateway = await gatewayRepo.updateGateway(id!, updateData);
-    
+    const updatedGateway = await gatewayRepo.updateGateway(id!, {...updateData});
+
     await gatewayRepo.createGatewayLog(id!, 'UPDATED', {
       changes: updateData
     });
 
-    res.json(serializeBigInt(updatedGateway));
+    res.json(serialize(updatedGateway));
   } catch (error) {
     next(error);
   }
@@ -127,7 +127,7 @@ export const deleteGateway = async (req: Request, res: Response, next: NextFunct
     // Log gateway deletion
     await gatewayRepo.createGatewayLog(id!, 'DELETED', {
       user: 'system',
-      gateway_data: serializeBigInt(existingGateway)
+      gateway_data: serialize(existingGateway)
     });
 
     await gatewayRepo.deleteGateway(id!);
@@ -178,7 +178,7 @@ export const attachDevice = async (req: Request, res: Response, next: NextFuncti
       device_uid: device.uid.toString()
     });
 
-    res.json(serializeBigInt(updatedDevice));
+    res.json(serialize(updatedDevice));
   } catch (error) {
     next(error);
   }
@@ -216,7 +216,7 @@ export const detachDevice = async (req: Request, res: Response, next: NextFuncti
       device_uid: device.uid.toString()
     });
 
-    res.json(serializeBigInt(updatedDevice));
+    res.json(serialize(updatedDevice));
   } catch (error) {
     next(error);
   }
@@ -234,7 +234,7 @@ export const listGatewayLogs = async (req: Request, res: Response, next: NextFun
     }
 
     const logs = await gatewayRepo.listGatewayLogs(gatewayId!);
-    res.json(serializeBigInt(logs));
+    res.json(serialize(logs));
   } catch (error) {
     next(error);
   }
@@ -243,7 +243,7 @@ export const listGatewayLogs = async (req: Request, res: Response, next: NextFun
 export const listAllLogs = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const logs = await gatewayRepo.listAllLogs();
-    res.json(serializeBigInt(logs));
+    res.json(serialize(logs));
   } catch (error) {
     next(error);
   }

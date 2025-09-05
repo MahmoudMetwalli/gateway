@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 import type { CreateTenantDTO } from '../schemas/tenant.schema';
 import * as tenantRepo from '../repositories/tenant.repository';
-import { serializeBigInt } from '../utils/bigint';
+import { serialize } from '../utils/serializer';
 
 export const createTenant = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -16,7 +16,7 @@ export const createTenant = async (req: Request, res: Response, next: NextFuncti
 export const listTenants = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const tenants = await tenantRepo.listTenants();
-    res.json(serializeBigInt(tenants));
+    res.json(serialize(tenants));
   } catch (error) {
     next(error);
   }
@@ -30,7 +30,7 @@ export const getTenantById = async (req: Request, res: Response, next: NextFunct
       res.status(404).json({ error: 'Tenant not found' });
       return;
     }
-    res.json(serializeBigInt(tenant));
+    res.json(serialize(tenant));
   } catch (error) {
     next(error);
   }

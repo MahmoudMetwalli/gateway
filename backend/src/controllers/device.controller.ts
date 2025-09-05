@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 import * as deviceRepo from '../repositories/device.repository';
 import type { CreatePeripheralDeviceDTO, UpdatePeripheralDeviceDTO } from '../schemas/device.schema';
-import { serializeBigInt } from '../utils/bigint';
+import { serialize } from '../utils/serializer';
 
 export const createDevice = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -30,7 +30,7 @@ export const createDevice = async (req: Request, res: Response, next: NextFuncti
     };
 
     const newDevice = await deviceRepo.createDevice(prismaData);
-    res.status(201).json(serializeBigInt(newDevice));
+    res.status(201).json(serialize(newDevice));
   } catch (error) {
     next(error);
   }
@@ -39,7 +39,7 @@ export const createDevice = async (req: Request, res: Response, next: NextFuncti
 export const listDevices = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const devices = await deviceRepo.listDevices();
-    res.json(serializeBigInt(devices));
+    res.json(serialize(devices));
   } catch (error) {
     next(error);
   }
@@ -55,7 +55,7 @@ export const getDeviceById = async (req: Request, res: Response, next: NextFunct
       return;
     }
     
-    res.json(serializeBigInt(device));
+    res.json(serialize(device));
   } catch (error) {
     next(error);
   }
@@ -85,7 +85,7 @@ export const updateDevice = async (req: Request, res: Response, next: NextFuncti
     }
 
     const updatedDevice = await deviceRepo.updateDevice(id!, updateData);
-    res.json(serializeBigInt(updatedDevice));
+    res.json(serialize(updatedDevice));
   } catch (error) {
     next(error);
   }
@@ -112,7 +112,7 @@ export const deleteDevice = async (req: Request, res: Response, next: NextFuncti
 export const getOrphanDevices = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const devices = await deviceRepo.getOrphanDevices();
-    res.json(serializeBigInt(devices));
+    res.json(serialize(devices));
   } catch (error) {
     next(error);
   }

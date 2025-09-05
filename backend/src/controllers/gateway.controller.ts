@@ -127,7 +127,7 @@ export const deleteGateway = async (req: Request, res: Response, next: NextFunct
     // Log gateway deletion
     await gatewayRepo.createGatewayLog(id!, 'DELETED', {
       user: 'system',
-      gateway_data: existingGateway
+      gateway_data: serializeBigInt(existingGateway)
     });
 
     await gatewayRepo.deleteGateway(id!);
@@ -217,6 +217,33 @@ export const detachDevice = async (req: Request, res: Response, next: NextFuncti
     });
 
     res.json(serializeBigInt(updatedDevice));
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const listGatewayLogs = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { id: gatewayId } = req.params;
+
+    // Check if gateway exists
+    const gateway = await gatewayRepo.getGatewayById(gatewayId!);
+    if (!gateway) {
+      res.status(404).json({ error: 'Gateway not found' });
+      return;
+    }
+
+    const logs = await gatewayRepo.listGatewayLogs(gatewayId!);
+    res.json(serializeBigInt(logs));
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const listAllLogs = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const logs = await gatewayRepo.listAllLogs();
+    res.json(serializeBigInt(logs));
   } catch (error) {
     next(error);
   }

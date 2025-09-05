@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { validateRequest } from '../middlewares/validation.middleware';
 import { CreateGatewaySchema, UpdateGatewaySchema } from '../schemas/gateway.schema';
-import { DeviceAttachSchema } from '../schemas/miscellaneous.schema';
+import { DeviceAttachSchema, GatewayLogSchema } from '../schemas/miscellaneous.schema';
 import * as gatewayController from '../controllers/gateway.controller';
 import { z } from 'zod';
 
@@ -55,6 +55,47 @@ router.post('/',
  *         $ref: '#/components/responses/InternalServerError'
  */
 router.get('/', gatewayController.listGateways);
+
+/**
+ * @swagger
+ * /api/gateways/logs:
+ *   get:
+ *     summary: Get all gateway logs across all gateways
+ *     tags: [Gateways]
+ *     responses:
+ *       200:
+ *         description: List of all gateway logs
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 allOf:
+ *                   - $ref: '#/components/schemas/GatewayLog'
+ *                   - type: object
+ *                     properties:
+ *                       gateway:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                             format: uuid
+ *                           name:
+ *                             type: string
+ *                           serial_number:
+ *                             type: string
+ *                           tenant:
+ *                             type: object
+ *                             properties:
+ *                               id:
+ *                                 type: string
+ *                                 format: uuid
+ *                               name:
+ *                                 type: string
+ *       500:
+ *         $ref: '#/components/responses/InternalServerError'
+ */
+router.get('/logs', gatewayController.listAllLogs);
 
 /**
  * @swagger
@@ -227,5 +268,38 @@ router.post('/:id/devices',
  *         $ref: '#/components/responses/InternalServerError'
  */
 router.delete('/:id/devices/:deviceId', gatewayController.detachDevice);
+
+/**
+ * @swagger
+ * /api/gateways/{id}/logs:
+ *   get:
+ *     summary: Get logs for a specific gateway
+ *     tags: [Gateways]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: Gateway ID
+ *     responses:
+ *       200:
+ *         description: List of gateway logs
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/GatewayLog'
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *       500:
+ *         $ref: '#/components/responses/InternalServerError'
+ */
+router.get('/:id/logs',
+  validateRequest({ params: GatewayLogSchema }),
+  gatewayController.listGatewayLogs
+);
 
 export default router;

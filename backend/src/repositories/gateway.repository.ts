@@ -89,3 +89,46 @@ export async function createGatewayLog(
     },
   });
 }
+
+export async function listGatewayLogs(gatewayId: string) {
+  const logs = await prisma.gatewayLog.findMany({
+    where: { gateway_id: gatewayId },
+    orderBy: { created_at: "desc" },
+  });
+  return logs;
+}
+
+export async function listAllLogs() {
+  const logs = await prisma.gatewayLog.findMany({
+    orderBy: { created_at: "desc" },
+  });
+  
+  // Manually join with gateway information
+  const logsWithGateway = await Promise.all(
+    logs.map(async (log) => {
+      const gateway = await prisma.gateway.findUnique({
+        where: { id: log.gateway_id },
+        include: {
+          tenant: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      });
+      
+      return {
+        ...log,
+        gateway: gateway ? {
+          id: gateway.id,
+          name: gateway.name,
+          serial_number: gateway.serial_number,
+          tenant: gateway.tenant,
+        } : null,
+      };
+    })
+  );
+  
+  return logsWithGateway;
+}

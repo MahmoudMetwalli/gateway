@@ -386,6 +386,46 @@ const swaggerDefinition: SwaggerDefinition = {
           },
         },
       },
+      GatewayLog: {
+        type: 'object',
+        properties: {
+          id: {
+            type: 'string',
+            format: 'uuid',
+            description: 'Unique identifier for the log entry',
+          },
+          gateway_id: {
+            type: 'string',
+            format: 'uuid',
+            description: 'ID of the gateway this log entry belongs to',
+          },
+          action: {
+            type: 'string',
+            enum: [
+              'CREATED',
+              'UPDATED', 
+              'DELETED',
+              'DEVICE_ATTACHED',
+              'DEVICE_DETACHED',
+              'STATUS_CHANGED',
+              'CONNECTION_ESTABLISHED',
+              'CONNECTION_LOST'
+            ],
+            description: 'Type of action that was logged',
+          },
+          details: {
+            type: 'object',
+            description: 'Additional details about the logged action',
+            additionalProperties: true,
+          },
+          created_at: {
+            type: 'string',
+            format: 'date-time',
+            description: 'Timestamp when the log entry was created',
+          },
+        },
+        required: ['id', 'gateway_id', 'action', 'details', 'created_at'],
+      },
       Error: {
         type: 'object',
         properties: {

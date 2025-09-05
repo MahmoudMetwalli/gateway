@@ -1,27 +1,29 @@
-import { prisma } from  "../config";
+import { prisma } from "../config";
 import { Prisma } from "@prisma/client";
 
-export async function serialNumberExists(serialNumber: string): Promise<boolean> {
+export async function serialNumberExists(
+  serialNumber: string
+): Promise<boolean> {
   const gateway = await prisma.gateway.findUnique({
-    where: { serial_number: serialNumber }
+    where: { serial_number: serialNumber },
   });
   return !!gateway;
 }
 
 export async function ipv4AddressExists(ipv4Address: string): Promise<boolean> {
   const gateway = await prisma.gateway.findUnique({
-    where: { ipv4_address: ipv4Address }
+    where: { ipv4_address: ipv4Address },
   });
   return !!gateway;
 }
 
 export async function createGateway(data: Prisma.GatewayCreateInput) {
-  const gateway = await prisma.gateway.create({ 
+  const gateway = await prisma.gateway.create({
     data,
     include: {
       devices: { include: { device_type: true } },
-      tenant: true
-    }
+      tenant: true,
+    },
   });
   return gateway;
 }
@@ -37,14 +39,17 @@ export async function getGatewayById(id: string) {
   return gateway;
 }
 
-export async function updateGateway(id: string, data: Prisma.GatewayUpdateInput) {
-  const gateway = await prisma.gateway.update({ 
-    where: { id }, 
+export async function updateGateway(
+  id: string,
+  data: Prisma.GatewayUpdateInput
+) {
+  const gateway = await prisma.gateway.update({
+    where: { id },
     data,
     include: {
       devices: { include: { device_type: true } },
-      tenant: true
-    }
+      tenant: true,
+    },
   });
   return gateway;
 }
@@ -64,22 +69,15 @@ export async function listGateways() {
 }
 
 export async function createGatewayLog(
-  gatewayId: string, 
-  action: string, 
+  gatewayId: string,
+  action: string,
   details: Record<string, any>
 ) {
-  // For now, we'll just log to console since we don't have a gateway_logs table
-  // In a real application, you might want to create a separate logs table
-  console.log(`Gateway Log: ${gatewayId} - ${action}`, details);
-  
-  // You could also store this in a separate logging service or table
-  // For example:
-  // return prisma.gatewayLog.create({
-  //   data: {
-  //     gateway_id: gatewayId,
-  //     action,
-  //     details: JSON.stringify(details),
-  //     timestamp: new Date()
-  //   }
-  // });
+  await prisma.gatewayLog.create({
+    data: {
+      gateway_id: gatewayId,
+      action,
+      details: JSON.stringify(details),
+    },
+  });
 }

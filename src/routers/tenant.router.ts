@@ -12,10 +12,9 @@ router.get('/', (req: Request, res: Response) => {
 
 router.post('/', validateRequest({ body: CreateTenantSchema }), tenantController.createTenant);
 router.get('/', tenantController.listTenants);
-router.get('/:id', validateRequest({ params: UuidParamSchema }), tenantController.getTenantById);
-router.put('/:id', validateRequest({ params: UuidParamSchema, body: UpdateTenantSchema }),
-tenantController.updateTenant);
-router.delete('/:id', validateRequest({ params: UuidParamSchema }), tenantController.deleteTenant);
+router.get('/:id', tenantController.getTenantById);
+router.put('/:id', validateRequest({ body: UpdateTenantSchema }), tenantController.updateTenant);
+router.delete('/:id', tenantController.deleteTenant);
 
 
 export default router;

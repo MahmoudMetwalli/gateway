@@ -1,0 +1,25 @@
+/* App specific styles */
+.app-container {
+  height: 100vh;
+  overflow: hidden;
+}
+
+.main-content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* Override default styles for our layout */
+#root {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: block;
+  place-items: unset;
+}

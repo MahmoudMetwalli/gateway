@@ -47,18 +47,32 @@ const getActionColor = (action: string) => {
   }
 };
 
-const formatDetails = (details: string) => {
+const formatDetails = (details: string | object) => {
   try {
-    const parsed = JSON.parse(details);
-    if (typeof parsed === 'object') {
-      return Object.entries(parsed)
+    // If details is already an object, format it directly
+    if (typeof details === 'object' && details !== null) {
+      return Object.entries(details)
         .filter(([key]) => !key.includes('_data') && key !== 'user')
         .map(([key, value]) => `${key}: ${value}`)
         .join(', ');
     }
-    return details;
+    
+    // If details is a string, try to parse it as JSON
+    if (typeof details === 'string') {
+      const parsed = JSON.parse(details);
+      if (typeof parsed === 'object') {
+        return Object.entries(parsed)
+          .filter(([key]) => !key.includes('_data') && key !== 'user')
+          .map(([key, value]) => `${key}: ${value}`)
+          .join(', ');
+      }
+      return details;
+    }
+    
+    // Fallback: convert to string
+    return String(details);
   } catch {
-    return details;
+    return String(details);
   }
 };
 

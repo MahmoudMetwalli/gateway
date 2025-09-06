@@ -95,7 +95,7 @@ export interface GatewayLog {
   id: string;
   gateway_id: string;
   action: string;
-  details: string;
+  details: string | object;
   created_at: string;
   gateway?: {
     id: string;

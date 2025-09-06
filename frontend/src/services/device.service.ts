@@ -17,7 +17,7 @@ export const createDevice = async (device: CreateDeviceRequest): Promise<Periphe
 };
 
 export const updateDevice = async (id: string, device: UpdateDeviceRequest): Promise<PeripheralDevice> => {
-    const { data } = await api.put<PeripheralDevice>(`/devices/${id}`, device);
+    const { data } = await api.patch<PeripheralDevice>(`/devices/${id}`, device);
     return data;
 };
 

@@ -49,6 +49,7 @@ export default function Gateways() {
     name: "",
     ipv4_address: "",
     location: "",
+    status: "ACTIVE" as "ACTIVE" | "INACTIVE" | "DECOMMISSIONED",
     tenant_id: ""
   });
 
@@ -86,6 +87,7 @@ export default function Gateways() {
         name: "",
         ipv4_address: "",
         location: "",
+        status: "ACTIVE" as "ACTIVE" | "INACTIVE" | "DECOMMISSIONED",
         tenant_id: ""
       });
     },
@@ -265,6 +267,19 @@ export default function Gateways() {
                   value={newGateway.location}
                   onChange={(e) => setNewGateway(prev => ({ ...prev, location: e.target.value }))}
                 />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="status">Status</Label>
+                <Select value={newGateway.status} onValueChange={(value: "ACTIVE" | "INACTIVE" | "DECOMMISSIONED") => setNewGateway(prev => ({ ...prev, status: value }))}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ACTIVE">Active</SelectItem>
+                    <SelectItem value="INACTIVE">Inactive</SelectItem>
+                    <SelectItem value="DECOMMISSIONED">Decommissioned</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="tenant">Tenant</Label>

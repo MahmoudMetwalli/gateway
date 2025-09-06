@@ -17,7 +17,7 @@ export const createTenant = async (tenant: CreateTenantRequest): Promise<Tenant>
 };
 
 export const updateTenant = async (id: string, tenant: UpdateTenantRequest): Promise<Tenant> => {
-    const { data } = await api.put<Tenant>(`/tenants/${id}`, tenant);
+    const { data } = await api.patch<Tenant>(`/tenants/${id}`, tenant);
     return data;
 };
 

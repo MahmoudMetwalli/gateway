@@ -17,7 +17,7 @@ export const createDeviceType = async (deviceType: CreateDeviceTypeRequest): Pro
 };
 
 export const updateDeviceType = async (id: number, deviceType: UpdateDeviceTypeRequest): Promise<DeviceType> => {
-    const { data } = await api.put<DeviceType>(`/device-types/${id}`, deviceType);
+    const { data } = await api.patch<DeviceType>(`/device-types/${id}`, deviceType);
     return data;
 };
 

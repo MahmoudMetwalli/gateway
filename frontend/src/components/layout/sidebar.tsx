@@ -6,7 +6,6 @@ import {
   Wifi, 
   Smartphone, 
   Settings, 
-  BarChart3,
   Home,
   FileText
 } from "lucide-react";
@@ -18,7 +17,6 @@ const navigation = [
   { name: "Devices", href: "/devices", icon: Smartphone },
   { name: "Device Types", href: "/device-types", icon: Settings },
   { name: "Logs", href: "/logs", icon: FileText },
-  { name: "Analytics", href: "/analytics", icon: BarChart3 },
 ];
 
 export function Sidebar() {

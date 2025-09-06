@@ -127,7 +127,7 @@ gateway/
    # Run migrations
    atlas migrate apply --env local
    ```
-
+   Don't Include the seeding data migration if not needed
 4. **Build and Run**:
    ```bash
    # Development with hot reload
@@ -143,29 +143,6 @@ gateway/
 ### Prerequisites for Docker
 - Docker Engine 20.10+
 - Docker Compose 2.0+
-
-### Quick Start with Docker Compose
-
-1. **Production deployment**:
-   ```bash
-   # Build and start all services
-   docker-compose up -d
-   
-   # View logs
-   docker-compose logs -f backend
-   
-   # Stop services
-   docker-compose down
-   ```
-
-2. **Development with hot reload**:
-   ```bash
-   # Start development environment
-   docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d backend-dev
-   
-   # View development logs
-   docker-compose logs -f backend-dev
-   ```
 
 ### Manual Docker Build
 

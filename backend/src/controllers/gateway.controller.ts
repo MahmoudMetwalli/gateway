@@ -124,7 +124,7 @@ const updateGateway = async (
   });
 
   await gatewayService.createGatewayLog(id!, "UPDATED", {
-    changes: updateData,
+    ...updateData,
   });
 
   res.json(serialize(updatedGateway));

@@ -27,12 +27,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Plus, Search, Smartphone, Hash, Clock, Server } from "lucide-react";
+import { Plus, Search, Smartphone, Hash, Clock, Server, Edit, Trash2 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { listDevices, createDevice, deleteDevice } from "@/services/device.service";
+import { listDevices, createDevice, updateDevice, deleteDevice } from "@/services/device.service";
 import { gatewayApi } from "@/services/gateway.service";
 import { listDeviceTypes } from "@/services/deviceType.service";
-import type { PeripheralDevice, CreateDeviceRequest, Gateway, DeviceType } from "@/types";
+import type { PeripheralDevice, CreateDeviceRequest, UpdateDeviceRequest, Gateway, DeviceType } from "@/types";
 import { formatDate, formatDateTime } from "@/utils/dateUtils";
 
 export default function Devices() {
@@ -40,6 +40,8 @@ export default function Devices() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingDevice, setEditingDevice] = useState<PeripheralDevice | null>(null);
   const [newDevice, setNewDevice] = useState({
     uid: "",
     vendor: "",
@@ -70,6 +72,8 @@ export default function Devices() {
     mutationFn: createDevice,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['devices'] });
+      queryClient.invalidateQueries({ queryKey: ['gateways'] });
+      queryClient.invalidateQueries({ queryKey: ['orphan-devices'] });
       setIsCreateDialogOpen(false);
       setNewDevice({
         uid: "",
@@ -80,11 +84,26 @@ export default function Devices() {
     },
   });
 
+  // Update device mutation
+  const updateMutation = useMutation({
+    mutationFn: ({ id, device }: { id: string; device: UpdateDeviceRequest }) => 
+      updateDevice(id, device),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['devices'] });
+      queryClient.invalidateQueries({ queryKey: ['gateways'] });
+      queryClient.invalidateQueries({ queryKey: ['orphan-devices'] });
+      setIsEditDialogOpen(false);
+      setEditingDevice(null);
+    },
+  });
+
   // Delete device mutation
   const deleteMutation = useMutation({
     mutationFn: deleteDevice,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['devices'] });
+      queryClient.invalidateQueries({ queryKey: ['gateways'] });
+      queryClient.invalidateQueries({ queryKey: ['orphan-devices'] });
     },
   });
 
@@ -104,14 +123,33 @@ export default function Devices() {
         uid: newDevice.uid,
         vendor: newDevice.vendor,
         device_type_id: parseInt(newDevice.device_type_id),
-        gateway_id: newDevice.gateway_id || null,
-      } as CreateDeviceRequest);
+        status: "ONLINE",
+        ...(newDevice.gateway_id && { gateway_id: newDevice.gateway_id })
+      });
     }
   };
 
-  const handleDeleteDevice = (id: string) => {
+  const handleEditDevice = (device: PeripheralDevice) => {
+    setEditingDevice(device);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleUpdateDevice = () => {
+    if (editingDevice) {
+      updateMutation.mutate({
+        id: editingDevice.id,
+        device: {
+          vendor: editingDevice.vendor,
+          status: editingDevice.status,
+          ...(editingDevice.gateway_id && { gateway_id: editingDevice.gateway_id })
+        }
+      });
+    }
+  };
+
+  const handleDeleteDevice = (deviceId: string) => {
     if (confirm('Are you sure you want to delete this device?')) {
-      deleteMutation.mutate(id);
+      deleteMutation.mutate(deviceId);
     }
   };
 
@@ -139,28 +177,144 @@ export default function Devices() {
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="uid">Device UID</Label>
-                <Input id="uid" placeholder="1234567890123456789" />
+                <Input 
+                  id="uid" 
+                  placeholder="1234567890123456789"
+                  value={newDevice.uid}
+                  onChange={(e) => setNewDevice(prev => ({...prev, uid: e.target.value}))}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="vendor">Vendor</Label>
-                <Input id="vendor" placeholder="SensorTech" />
+                <Input 
+                  id="vendor" 
+                  placeholder="SensorTech"
+                  value={newDevice.vendor}
+                  onChange={(e) => setNewDevice(prev => ({...prev, vendor: e.target.value}))}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="device-type">Device Type</Label>
-                <Select>
+                <Select
+                  value={newDevice.device_type_id}
+                  onValueChange={(value) => setNewDevice(prev => ({...prev, device_type_id: value}))}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select device type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="1">Temperature Sensor</SelectItem>
-                    <SelectItem value="2">Motion Detector</SelectItem>
-                    <SelectItem value="3">Door Lock</SelectItem>
+                    {deviceTypes.map((type) => (
+                      <SelectItem key={type.id} value={type.id.toString()}>
+                        {type.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="status">Status</Label>
-                <Select>
+                <Label htmlFor="gateway">Gateway (Optional)</Label>
+                <Select
+                  value={newDevice.gateway_id || "none"}
+                  onValueChange={(value) => setNewDevice(prev => ({...prev, gateway_id: value === "none" ? "" : value}))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select gateway (optional)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Unassigned</SelectItem>
+                    {gateways.map((gateway) => (
+                      <SelectItem key={gateway.id} value={gateway.id}>
+                        {gateway.name} ({gateway.serial_number})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex justify-end space-x-2">
+                <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button className="bg-gradient-primary" onClick={handleCreateDevice}>
+                  Create Device
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Edit Device Dialog */}
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Edit Device</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-uid">Device UID</Label>
+                <Input
+                  id="edit-uid"
+                  value={editingDevice?.uid || ""}
+                  disabled
+                  className="bg-gray-50"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-vendor">Vendor</Label>
+                <Input
+                  id="edit-vendor"
+                  value={editingDevice?.vendor || ""}
+                  onChange={(e) => 
+                    setEditingDevice(prev => prev ? {...prev, vendor: e.target.value} : null)
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-device-type">Device Type</Label>
+                <Select
+                  value={editingDevice?.device_type_id?.toString() || ""}
+                  disabled
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Device type (read-only)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {deviceTypes.map((type) => (
+                      <SelectItem key={type.id} value={type.id.toString()}>
+                        {type.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-gateway">Gateway</Label>
+                <Select
+                  value={editingDevice?.gateway_id || "none"}
+                  onValueChange={(value) => 
+                    setEditingDevice(prev => prev ? {...prev, gateway_id: value === "none" ? null : value} : null)
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select gateway (optional)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Unassigned</SelectItem>
+                    {gateways.map((gateway) => (
+                      <SelectItem key={gateway.id} value={gateway.id}>
+                        {gateway.name} ({gateway.serial_number})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-status">Status</Label>
+                <Select
+                  value={editingDevice?.status || "ONLINE"}
+                  onValueChange={(value) => 
+                    setEditingDevice(prev => prev ? {...prev, status: value as any} : null)
+                  }
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
@@ -172,10 +326,12 @@ export default function Devices() {
                 </Select>
               </div>
               <div className="flex justify-end space-x-2">
-                <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
                   Cancel
                 </Button>
-                <Button className="bg-gradient-primary">Create Device</Button>
+                <Button className="bg-gradient-primary" onClick={handleUpdateDevice}>
+                  Update Device
+                </Button>
               </div>
             </div>
           </DialogContent>
@@ -274,8 +430,22 @@ export default function Devices() {
                   </TableCell>
                   <TableCell>
                     <div className="flex space-x-2">
-                      <Button variant="outline" size="sm">Edit</Button>
-                      <Button variant="outline" size="sm">View</Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => handleEditDevice(device)}
+                      >
+                        <Edit className="h-4 w-4 mr-1" />
+                        Edit
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => handleDeleteDevice(device.id)}
+                      >
+                        <Trash2 className="h-4 w-4 mr-1" />
+                        Delete
+                      </Button>
                     </div>
                   </TableCell>
                 </TableRow>

@@ -27,11 +27,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Plus, Search, MapPin, Hash, Wifi, Clock } from "lucide-react";
+import { Plus, Search, MapPin, Hash, Wifi, Clock, Settings, Link, Unlink } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { gatewayApi } from "@/services/gateway.service";
 import { listTenants } from "@/services/tenant.service";
-import type { Gateway, CreateGatewayRequest, Tenant } from "@/types";
+import { getOrphanDevices } from "@/services/device.service";
+import type { Gateway, CreateGatewayRequest, Tenant, PeripheralDevice } from "@/types";
 import { formatDate } from "@/utils/dateUtils";
 
 export default function Gateways() {
@@ -40,6 +41,8 @@ export default function Gateways() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeviceManageDialogOpen, setIsDeviceManageDialogOpen] = useState(false);
+  const [selectedGateway, setSelectedGateway] = useState<Gateway | null>(null);
   const [editingGateway, setEditingGateway] = useState<Gateway | null>(null);
   const [newGateway, setNewGateway] = useState({
     serial_number: "",
@@ -60,7 +63,17 @@ export default function Gateways() {
     queryFn: listTenants,
   });
 
+  const { data: orphanDevices = [], refetch: refetchOrphanDevices } = useQuery({
+    queryKey: ['orphan-devices'],
+    queryFn: getOrphanDevices,
+  });
+
   const gateways = gatewaysResponse?.data || [];
+
+  // Get fresh gateway data when managing devices
+  const freshSelectedGateway = selectedGateway 
+    ? gateways.find(g => g.id === selectedGateway.id) || selectedGateway
+    : null;
 
   // Create gateway mutation
   const createMutation = useMutation({
@@ -96,6 +109,38 @@ export default function Gateways() {
     },
   });
 
+  // Attach device mutation
+  const attachDeviceMutation = useMutation({
+    mutationFn: ({ gatewayId, deviceId }: { gatewayId: string; deviceId: string }) =>
+      gatewayApi.attachDevice(gatewayId, { deviceId }),
+    onSuccess: async () => {
+      // Invalidate all related queries
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['gateways'] }),
+        queryClient.invalidateQueries({ queryKey: ['orphan-devices'] }),
+        queryClient.invalidateQueries({ queryKey: ['devices'] })
+      ]);
+      // Manually refetch to ensure immediate UI update
+      await refetchOrphanDevices();
+    },
+  });
+
+  // Detach device mutation
+  const detachDeviceMutation = useMutation({
+    mutationFn: ({ gatewayId, deviceId }: { gatewayId: string; deviceId: string }) =>
+      gatewayApi.detachDevice(gatewayId, deviceId),
+    onSuccess: async () => {
+      // Invalidate all related queries
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['gateways'] }),
+        queryClient.invalidateQueries({ queryKey: ['orphan-devices'] }),
+        queryClient.invalidateQueries({ queryKey: ['devices'] })
+      ]);
+      // Manually refetch to ensure immediate UI update
+      await refetchOrphanDevices();
+    },
+  });
+
   const filteredGateways = gateways.filter(gateway => {
     const matchesSearch = gateway.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          gateway.serial_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -108,13 +153,7 @@ export default function Gateways() {
 
   const handleCreateGateway = () => {
     if (newGateway.serial_number && newGateway.name && newGateway.ipv4_address && newGateway.tenant_id) {
-      createMutation.mutate({
-        serial_number: newGateway.serial_number,
-        name: newGateway.name,
-        ipv4_address: newGateway.ipv4_address,
-        location: newGateway.location,
-        tenant_id: newGateway.tenant_id,
-      } as CreateGatewayRequest);
+      createMutation.mutate(newGateway as CreateGatewayRequest);
     }
   };
 
@@ -128,19 +167,44 @@ export default function Gateways() {
       updateMutation.mutate({
         id: editingGateway.id,
         data: {
-          serial_number: editingGateway.serial_number,
           name: editingGateway.name,
           ipv4_address: editingGateway.ipv4_address,
           location: editingGateway.location,
-          tenant_id: editingGateway.tenant_id,
-        },
+          status: editingGateway.status,
+        }
       });
     }
   };
 
-  const handleDeleteGateway = (id: string) => {
+  const handleDeleteGateway = (gatewayId: string) => {
     if (confirm('Are you sure you want to delete this gateway?')) {
-      deleteMutation.mutate(id);
+      deleteMutation.mutate(gatewayId);
+    }
+  };
+
+  const handleManageDevices = async (gateway: Gateway) => {
+    setSelectedGateway(gateway);
+    setIsDeviceManageDialogOpen(true);
+    // Refresh data when opening the dialog
+    await refetchOrphanDevices();
+    await queryClient.refetchQueries({ queryKey: ['gateways'] });
+  };
+
+  const handleAttachDevice = (deviceId: string) => {
+    if (selectedGateway) {
+      attachDeviceMutation.mutate({
+        gatewayId: selectedGateway.id,
+        deviceId
+      });
+    }
+  };
+
+  const handleDetachDevice = (deviceId: string) => {
+    if (selectedGateway) {
+      detachDeviceMutation.mutate({
+        gatewayId: selectedGateway.id,
+        deviceId
+      });
     }
   };
 
@@ -233,6 +297,83 @@ export default function Gateways() {
           </DialogContent>
         </Dialog>
       </div>
+
+      {/* Edit Gateway Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Gateway</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-name">Gateway Name</Label>
+              <Input 
+                id="edit-name" 
+                placeholder="Gateway-NYC-01"
+                value={editingGateway?.name || ""}
+                onChange={(e) => setEditingGateway(prev => prev ? ({ ...prev, name: e.target.value }) : null)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-serial">Serial Number</Label>
+              <Input 
+                id="edit-serial" 
+                placeholder="GW001234567"
+                value={editingGateway?.serial_number || ""}
+                disabled
+                className="bg-muted"
+              />
+              <p className="text-xs text-muted-foreground">Serial number cannot be changed</p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-ip">IPv4 Address</Label>
+              <Input 
+                id="edit-ip" 
+                placeholder="192.168.1.100"
+                value={editingGateway?.ipv4_address || ""}
+                onChange={(e) => setEditingGateway(prev => prev ? ({ ...prev, ipv4_address: e.target.value }) : null)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-location">Location</Label>
+              <Input 
+                id="edit-location" 
+                placeholder="New York Office - Floor 1"
+                value={editingGateway?.location || ""}
+                onChange={(e) => setEditingGateway(prev => prev ? ({ ...prev, location: e.target.value }) : null)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-status">Status</Label>
+              <Select 
+                value={editingGateway?.status || "ACTIVE"} 
+                onValueChange={(value) => setEditingGateway(prev => prev ? ({ ...prev, status: value as any }) : null)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ACTIVE">Active</SelectItem>
+                  <SelectItem value="INACTIVE">Inactive</SelectItem>
+                  <SelectItem value="DECOMMISSIONED">Decommissioned</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex justify-end space-x-2">
+              <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button 
+                className="bg-gradient-primary"
+                onClick={handleUpdateGateway}
+                disabled={updateMutation.isPending || !editingGateway?.name || !editingGateway?.ipv4_address}
+              >
+                {updateMutation.isPending ? "Updating..." : "Update Gateway"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Card>
         <CardHeader>
@@ -346,6 +487,14 @@ export default function Gateways() {
                       <Button 
                         variant="outline" 
                         size="sm"
+                        onClick={() => handleManageDevices(gateway)}
+                      >
+                        <Settings className="h-4 w-4 mr-1" />
+                        Devices
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
                         onClick={() => handleEditGateway(gateway)}
                       >
                         Edit
@@ -368,6 +517,103 @@ export default function Gateways() {
           )}
         </CardContent>
       </Card>
+
+      {/* Device Management Dialog */}
+      <Dialog open={isDeviceManageDialogOpen} onOpenChange={setIsDeviceManageDialogOpen}>
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>
+              Manage Devices - {freshSelectedGateway?.name}
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-6">
+            {/* Connected Devices */}
+            <div>
+              <h3 className="text-lg font-semibold mb-3">Connected Devices</h3>
+              {freshSelectedGateway?.devices && freshSelectedGateway.devices.length > 0 ? (
+                <div className="space-y-2">
+                  {freshSelectedGateway.devices.map((device) => (
+                    <div key={device.id} className="flex items-center justify-between p-3 border rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <div className="h-8 w-8 rounded bg-gradient-primary flex items-center justify-center">
+                          <Hash className="h-4 w-4 text-primary-foreground" />
+                        </div>
+                        <div>
+                          <p className="font-medium">{device.uid}</p>
+                          <p className="text-sm text-muted-foreground">{device.vendor}</p>
+                        </div>
+                        <Badge variant="outline">{device.device_type?.name}</Badge>
+                        <StatusBadge variant={device.status.toLowerCase() as any}>
+                          {device.status}
+                        </StatusBadge>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDetachDevice(device.id)}
+                        disabled={detachDeviceMutation.isPending}
+                      >
+                        <Unlink className="h-4 w-4 mr-1" />
+                        Detach
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-muted-foreground text-center py-4">
+                  No devices connected to this gateway
+                </p>
+              )}
+            </div>
+
+            {/* Available Devices */}
+            <div>
+              <h3 className="text-lg font-semibold mb-3">Available Devices</h3>
+              {orphanDevices.length > 0 ? (
+                <div className="space-y-2 max-h-60 overflow-y-auto">
+                  {orphanDevices.map((device) => (
+                    <div key={device.id} className="flex items-center justify-between p-3 border rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <div className="h-8 w-8 rounded bg-secondary flex items-center justify-center">
+                          <Hash className="h-4 w-4" />
+                        </div>
+                        <div>
+                          <p className="font-medium">{device.uid}</p>
+                          <p className="text-sm text-muted-foreground">{device.vendor}</p>
+                        </div>
+                        <Badge variant="outline">{device.device_type?.name}</Badge>
+                        <StatusBadge variant={device.status.toLowerCase() as any}>
+                          {device.status}
+                        </StatusBadge>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleAttachDevice(device.id)}
+                        disabled={attachDeviceMutation.isPending}
+                      >
+                        <Link className="h-4 w-4 mr-1" />
+                        Attach
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-muted-foreground text-center py-4">
+                  No unassigned devices available
+                </p>
+              )}
+            </div>
+
+            <div className="flex justify-end">
+              <Button variant="outline" onClick={() => setIsDeviceManageDialogOpen(false)}>
+                Close
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

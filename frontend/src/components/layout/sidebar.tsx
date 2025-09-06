@@ -60,7 +60,7 @@ export function Sidebar() {
                     : "text-muted-foreground group-hover:text-accent-foreground"
                 )}
               />
-              {item.name}
+              <span className="flex-1">{item.name}</span>
             </Link>
           );
         })}

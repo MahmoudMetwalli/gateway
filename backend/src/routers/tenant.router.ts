@@ -114,7 +114,7 @@ router.get('/:id', tenantController.getTenantById);
  *       500:
  *         $ref: '#/components/responses/InternalServerError'
  */
-router.put('/:id', validateRequest({ body: UpdateTenantSchema }), tenantController.updateTenant);
+router.patch('/:id', validateRequest({ body: UpdateTenantSchema }), tenantController.updateTenant);
 
 /**
  * @swagger

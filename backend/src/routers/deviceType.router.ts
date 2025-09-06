@@ -116,7 +116,7 @@ router.get('/:id', deviceTypeController.getDeviceTypeById);
  *       500:
  *         $ref: '#/components/responses/InternalServerError'
  */
-router.put('/:id',
+router.patch('/:id',
   validateRequest({ body: UpdateDeviceTypeSchema }),
   deviceTypeController.updateDeviceType
 );

@@ -159,7 +159,7 @@ router.get('/:id', gatewayController.getGatewayById);
  *       500:
  *         $ref: '#/components/responses/InternalServerError'
  */
-router.put('/:id',
+router.patch('/:id',
   validateRequest({ body: UpdateGatewaySchema }),
   gatewayController.updateGateway
 );

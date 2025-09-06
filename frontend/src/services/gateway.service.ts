@@ -23,7 +23,7 @@ export const tenantApi = {
   getById: (id: string) => api.get<Tenant>(`/tenants/${id}`),
   create: (data: CreateTenantRequest) => api.post<Tenant>('/tenants', data),
   update: (id: string, data: UpdateTenantRequest) => 
-    api.put<Tenant>(`/tenants/${id}`, data),
+    api.patch<Tenant>(`/tenants/${id}`, data),
   delete: (id: string) => api.delete(`/tenants/${id}`),
 };
 
@@ -33,7 +33,7 @@ export const gatewayApi = {
   getById: (id: string) => api.get<Gateway>(`/gateways/${id}`),
   create: (data: CreateGatewayRequest) => api.post<Gateway>('/gateways', data),
   update: (id: string, data: UpdateGatewayRequest) => 
-    api.put<Gateway>(`/gateways/${id}`, data),
+    api.patch<Gateway>(`/gateways/${id}`, data),
   delete: (id: string) => api.delete(`/gateways/${id}`),
   attachDevice: (gatewayId: string, data: AttachDeviceRequest) =>
     api.post<PeripheralDevice>(`/gateways/${gatewayId}/devices`, data),
@@ -47,7 +47,7 @@ export const deviceApi = {
   getById: (id: string) => api.get<PeripheralDevice>(`/devices/${id}`),
   create: (data: CreateDeviceRequest) => api.post<PeripheralDevice>('/devices', data),
   update: (id: string, data: UpdateDeviceRequest) => 
-    api.put<PeripheralDevice>(`/devices/${id}`, data),
+    api.patch<PeripheralDevice>(`/devices/${id}`, data),
   delete: (id: string) => api.delete(`/devices/${id}`),
   getOrphans: () => api.get<PeripheralDevice[]>('/devices/orphans'),
 };
@@ -59,6 +59,6 @@ export const deviceTypeApi = {
   create: (data: { name: string; description?: string }) => 
     api.post<DeviceType>('/device-types', data),
   update: (id: number, data: { name?: string; description?: string }) => 
-    api.put<DeviceType>(`/device-types/${id}`, data),
+    api.patch<DeviceType>(`/device-types/${id}`, data),
   delete: (id: number) => api.delete(`/device-types/${id}`),
 };

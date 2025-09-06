@@ -136,7 +136,7 @@ router.get('/:id', deviceController.getDeviceById);
  *       500:
  *         $ref: '#/components/responses/InternalServerError'
  */
-router.put('/:id',
+router.patch('/:id',
   validateRequest({ body: UpdatePeripheralDeviceSchema }),
   deviceController.updateDevice
 );

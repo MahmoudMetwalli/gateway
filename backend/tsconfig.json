@@ -9,7 +9,7 @@
     "module": "ESNext",
     "target": "ES2022",
     "moduleResolution": "bundler",
-    "types": ["node"],
+    "types": ["node", "jest"],
     // For nodejs:
     "lib": ["ES2022"],
     // and npm install -D @types/node
@@ -42,5 +42,5 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "tests/**/*.test.ts"]
 }

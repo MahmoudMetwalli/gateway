@@ -140,7 +140,6 @@ describe("Gateway Controller", () => {
       .patch(`/api/gateways/${mockGateway!.id}`)
       .send({
         name: "Updated Test Gateway",
-        serial_number: "TG001",
         ipv4_address: "192.168.1.100",
         status: "ACTIVE",
         location: "Updated Location",
@@ -159,7 +158,6 @@ describe("Gateway Controller", () => {
       .patch(`/api/gateways/${mockGateway!.id}`)
       .send({
         name: "Updated Test Gateway",
-        serial_number: "TG001",
         ipv4_address: "192.168.1.100",
         status: "ACTIVE",
         location: "Updated Location",

@@ -19,7 +19,7 @@ export const CreatePeripheralDeviceSchema = PeripheralDeviceSchema.pick({
   status: true,
   device_type_id: true,
   gateway_id: true,
-});
+}).strict();
 
 // Update Device DTO schema
 export const UpdatePeripheralDeviceSchema = PeripheralDeviceSchema.pick({
@@ -27,7 +27,7 @@ export const UpdatePeripheralDeviceSchema = PeripheralDeviceSchema.pick({
   status: true,
   last_seen_at: true,
   device_type_id: true,
-}).partial();
+}).partial().strict();
 
 
 // Infer types from schemas

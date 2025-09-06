@@ -12,13 +12,13 @@ export const TenantSchema = z.object({
 export const CreateTenantSchema = TenantSchema.pick({
   name: true,
   contact_email: true,
-});
+}).strict();
 
 // Update Tenant DTO schema
 export const UpdateTenantSchema = TenantSchema.pick({
   name: true,
   contact_email: true,
-}).partial();
+}).partial().strict();
 
 // Infer types from schemas
 export type TenantDTO = z.infer<typeof TenantSchema> & {

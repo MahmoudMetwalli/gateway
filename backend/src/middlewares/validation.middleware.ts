@@ -30,7 +30,6 @@ const validateRequest = (schemas: {
 
     if (errors.length > 0) {
       const allIssues = errors.flatMap(error => error.issues);
-      console.error('Validation errors:', allIssues);
       res.status(400).json({
         error: 'Validation failed',
         details: allIssues.map((err: z.ZodIssue) => ({

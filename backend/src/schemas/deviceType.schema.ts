@@ -11,13 +11,13 @@ export const DeviceTypeSchema = z.object({
 export const CreateDeviceTypeSchema = DeviceTypeSchema.pick({
   name: true,
   description: true,
-});
+}).strict();
 
 // Update Device Type DTO schema
 export const UpdateDeviceTypeSchema = DeviceTypeSchema.pick({
   name: true,
   description: true,
-}).partial();
+}).partial().strict();
 
 // Infer types from schemas
 export type DeviceTypeDTO = z.infer<typeof DeviceTypeSchema> & {

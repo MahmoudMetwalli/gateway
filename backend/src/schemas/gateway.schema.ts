@@ -23,14 +23,14 @@ export const CreateGatewaySchema = GatewaySchema.pick({
   status: true,
   location: true,
   tenant_id: true,
-});
+}).strict();
 
 export const UpdateGatewaySchema = GatewaySchema.pick({
   name: true,
   ipv4_address: true,
   status: true,
   location: true,
-}).partial();
+}).partial().strict();
 
 // Infer types from schemas
 export type GatewayDTO = z.infer<typeof GatewaySchema> & {

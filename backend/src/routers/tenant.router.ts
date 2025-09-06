@@ -1,7 +1,10 @@
 import { Router } from "express";
-import validateRequest from '../middlewares/validation.middleware';
-import { CreateTenantSchema, UpdateTenantSchema } from '../schemas/tenant.schema';
-import tenantController from '../controllers/tenant.controller';
+import validateRequest from "../middlewares/validation.middleware.js";
+import {
+  CreateTenantSchema,
+  UpdateTenantSchema,
+} from "../schemas/tenant.schema.js";
+import tenantController from "../controllers/tenant.controller.js";
 
 const router = Router();
 
@@ -23,7 +26,7 @@ const router = Router();
  *       500:
  *         $ref: '#/components/responses/InternalServerError'
  */
-router.get('/', tenantController.listTenants);
+router.get("/", tenantController.listTenants);
 
 /**
  * @swagger
@@ -49,7 +52,11 @@ router.get('/', tenantController.listTenants);
  *       500:
  *         $ref: '#/components/responses/InternalServerError'
  */
-router.post('/', validateRequest({ body: CreateTenantSchema }), tenantController.createTenant);
+router.post(
+  "/",
+  validateRequest({ body: CreateTenantSchema }),
+  tenantController.createTenant
+);
 
 /**
  * @swagger
@@ -77,7 +84,7 @@ router.post('/', validateRequest({ body: CreateTenantSchema }), tenantController
  *       500:
  *         $ref: '#/components/responses/InternalServerError'
  */
-router.get('/:id', tenantController.getTenantById);
+router.get("/:id", tenantController.getTenantById);
 
 /**
  * @swagger
@@ -113,7 +120,11 @@ router.get('/:id', tenantController.getTenantById);
  *       500:
  *         $ref: '#/components/responses/InternalServerError'
  */
-router.patch('/:id', validateRequest({ body: UpdateTenantSchema }), tenantController.updateTenant);
+router.patch(
+  "/:id",
+  validateRequest({ body: UpdateTenantSchema }),
+  tenantController.updateTenant
+);
 
 /**
  * @swagger
@@ -137,6 +148,6 @@ router.patch('/:id', validateRequest({ body: UpdateTenantSchema }), tenantContro
  *       500:
  *         $ref: '#/components/responses/InternalServerError'
  */
-router.delete('/:id', tenantController.deleteTenant);
+router.delete("/:id", tenantController.deleteTenant);
 
 export default router;

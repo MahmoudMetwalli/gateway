@@ -1,8 +1,8 @@
 import type { Request, Response, NextFunction } from "express";
-import type { CreateTenantDTO } from "../schemas/tenant.schema";
-import * as tenantService from "../services/tenant.service";
-import { serialize } from "../utils/serializer";
-import wrapAsync from "../utils/errorCatcher";
+import type { CreateTenantDTO } from "../schemas/tenant.schema.js";
+import * as tenantService from "../services/tenant.service.js";
+import { serialize } from "../utils/serializer.js";
+import wrapAsync from "../utils/errorCatcher.js";
 
 const createTenant = async (
   req: Request,

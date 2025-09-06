@@ -1,7 +1,10 @@
-import type { Request, Response, NextFunction } from 'express';
-export declare const createTenant: (req: Request, res: Response, next: NextFunction) => Promise<void>;
-export declare const listTenants: (req: Request, res: Response, next: NextFunction) => Promise<void>;
-export declare const getTenantById: (req: Request, res: Response, next: NextFunction) => Promise<void>;
-export declare const updateTenant: (req: Request, res: Response, next: NextFunction) => Promise<void>;
-export declare const deleteTenant: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+import type { Request, Response, NextFunction } from "express";
+declare const tenantController: {
+    createTenant: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+    listTenants: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+    getTenantById: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+    updateTenant: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+    deleteTenant: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+};
+export default tenantController;
 //# sourceMappingURL=tenant.controller.d.ts.map

@@ -9,4 +9,8 @@ export default {
     ...tsJestTransformCfg,
   },
   preset: "ts-jest",
+  moduleNameMapper: {
+    "^(\\.{1,2}/.*)\\.js$": "$1",
+  },
+  extensionsToTreatAsEsm: [".ts"],
 };

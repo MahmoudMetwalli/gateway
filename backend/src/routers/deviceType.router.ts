@@ -1,7 +1,10 @@
 import { Router } from "express";
-import validateRequest from '../middlewares/validation.middleware';
-import { CreateDeviceTypeSchema, UpdateDeviceTypeSchema } from '../schemas/deviceType.schema';
-import deviceTypeController from '../controllers/deviceType.controller';
+import validateRequest from "../middlewares/validation.middleware.js";
+import {
+  CreateDeviceTypeSchema,
+  UpdateDeviceTypeSchema,
+} from "../schemas/deviceType.schema.js";
+import deviceTypeController from "../controllers/deviceType.controller.js";
 
 const router = Router();
 
@@ -29,7 +32,8 @@ const router = Router();
  *       500:
  *         $ref: '#/components/responses/InternalServerError'
  */
-router.post('/', 
+router.post(
+  "/",
   validateRequest({ body: CreateDeviceTypeSchema }),
   deviceTypeController.createDeviceType
 );
@@ -52,7 +56,7 @@ router.post('/',
  *       500:
  *         $ref: '#/components/responses/InternalServerError'
  */
-router.get('/', deviceTypeController.listDeviceTypes);
+router.get("/", deviceTypeController.listDeviceTypes);
 
 /**
  * @swagger
@@ -80,7 +84,7 @@ router.get('/', deviceTypeController.listDeviceTypes);
  *       500:
  *         $ref: '#/components/responses/InternalServerError'
  */
-router.get('/:id', deviceTypeController.getDeviceTypeById);
+router.get("/:id", deviceTypeController.getDeviceTypeById);
 
 /**
  * @swagger
@@ -116,7 +120,8 @@ router.get('/:id', deviceTypeController.getDeviceTypeById);
  *       500:
  *         $ref: '#/components/responses/InternalServerError'
  */
-router.patch('/:id',
+router.patch(
+  "/:id",
   validateRequest({ body: UpdateDeviceTypeSchema }),
   deviceTypeController.updateDeviceType
 );
@@ -143,6 +148,6 @@ router.patch('/:id',
  *       500:
  *         $ref: '#/components/responses/InternalServerError'
  */
-router.delete('/:id', deviceTypeController.deleteDeviceType);
+router.delete("/:id", deviceTypeController.deleteDeviceType);
 
 export default router;

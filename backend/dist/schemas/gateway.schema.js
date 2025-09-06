@@ -1,7 +1,7 @@
 import { z } from 'zod';
 // Zod schema for validation
 export const GatewaySchema = z.object({
-    id: z.string().uuid(),
+    id: z.uuid(),
     serial_number: z.string().min(1, "Serial number is required"),
     name: z.string().min(1, "Name is required"),
     ipv4_address: z.string().regex(/^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/, "Invalid IPv4 address"),
@@ -9,7 +9,7 @@ export const GatewaySchema = z.object({
     location: z.string().optional(),
     created_at: z.date(),
     updated_at: z.date(),
-    tenant_id: z.string().uuid(),
+    tenant_id: z.uuid(),
 });
 // Create Gateway DTO schema
 export const CreateGatewaySchema = GatewaySchema.pick({

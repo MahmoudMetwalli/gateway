@@ -1,8 +1,14 @@
 import { Router } from "express";
-import validateRequest from '../middlewares/validation.middleware';
-import { CreateGatewaySchema, UpdateGatewaySchema } from '../schemas/gateway.schema';
-import { DeviceAttachSchema, GatewayLogSchema } from '../schemas/miscellaneous.schema';
-import gatewayController from '../controllers/gateway.controller';
+import validateRequest from "../middlewares/validation.middleware.js";
+import {
+  CreateGatewaySchema,
+  UpdateGatewaySchema,
+} from "../schemas/gateway.schema.js";
+import {
+  DeviceAttachSchema,
+  GatewayLogSchema,
+} from "../schemas/miscellaneous.schema.js";
+import gatewayController from "../controllers/gateway.controller.js";
 
 const router = Router();
 
@@ -30,7 +36,8 @@ const router = Router();
  *       500:
  *         $ref: '#/components/responses/InternalServerError'
  */
-router.post('/', 
+router.post(
+  "/",
   validateRequest({ body: CreateGatewaySchema }),
   gatewayController.createGateway
 );
@@ -53,7 +60,7 @@ router.post('/',
  *       500:
  *         $ref: '#/components/responses/InternalServerError'
  */
-router.get('/', gatewayController.listGateways);
+router.get("/", gatewayController.listGateways);
 
 /**
  * @swagger
@@ -94,7 +101,7 @@ router.get('/', gatewayController.listGateways);
  *       500:
  *         $ref: '#/components/responses/InternalServerError'
  */
-router.get('/logs', gatewayController.listAllLogs);
+router.get("/logs", gatewayController.listAllLogs);
 
 /**
  * @swagger
@@ -122,7 +129,7 @@ router.get('/logs', gatewayController.listAllLogs);
  *       500:
  *         $ref: '#/components/responses/InternalServerError'
  */
-router.get('/:id', gatewayController.getGatewayById);
+router.get("/:id", gatewayController.getGatewayById);
 
 /**
  * @swagger
@@ -158,7 +165,8 @@ router.get('/:id', gatewayController.getGatewayById);
  *       500:
  *         $ref: '#/components/responses/InternalServerError'
  */
-router.patch('/:id',
+router.patch(
+  "/:id",
   validateRequest({ body: UpdateGatewaySchema }),
   gatewayController.updateGateway
 );
@@ -185,7 +193,7 @@ router.patch('/:id',
  *       500:
  *         $ref: '#/components/responses/InternalServerError'
  */
-router.delete('/:id', gatewayController.deleteGateway);
+router.delete("/:id", gatewayController.deleteGateway);
 
 /**
  * @swagger
@@ -228,7 +236,8 @@ router.delete('/:id', gatewayController.deleteGateway);
  *       500:
  *         $ref: '#/components/responses/InternalServerError'
  */
-router.post('/:id/devices',
+router.post(
+  "/:id/devices",
   validateRequest({ body: DeviceAttachSchema }),
   gatewayController.attachDevice
 );
@@ -266,7 +275,7 @@ router.post('/:id/devices',
  *       500:
  *         $ref: '#/components/responses/InternalServerError'
  */
-router.delete('/:id/devices/:deviceId', gatewayController.detachDevice);
+router.delete("/:id/devices/:deviceId", gatewayController.detachDevice);
 
 /**
  * @swagger
@@ -296,7 +305,8 @@ router.delete('/:id/devices/:deviceId', gatewayController.detachDevice);
  *       500:
  *         $ref: '#/components/responses/InternalServerError'
  */
-router.get('/:id/logs',
+router.get(
+  "/:id/logs",
   validateRequest({ params: GatewayLogSchema }),
   gatewayController.listGatewayLogs
 );

@@ -5,4 +5,7 @@ export const UuidParamSchema = z.object({
 export const DeviceAttachSchema = z.object({
     deviceId: z.uuid('Invalid device ID format')
 });
+export const GatewayLogSchema = z.object({
+    id: z.uuid('Invalid Gateway ID format'),
+});
 //# sourceMappingURL=miscellaneous.schema.js.map

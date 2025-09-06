@@ -1,7 +1,10 @@
 import { Router } from "express";
-import validateRequest from '../middlewares/validation.middleware';
-import { CreatePeripheralDeviceSchema, UpdatePeripheralDeviceSchema } from '../schemas/device.schema';
-import deviceController from '../controllers/device.controller';
+import validateRequest from "../middlewares/validation.middleware.js";
+import {
+  CreatePeripheralDeviceSchema,
+  UpdatePeripheralDeviceSchema,
+} from "../schemas/device.schema.js";
+import deviceController from "../controllers/device.controller.js";
 
 const router = Router();
 
@@ -23,7 +26,7 @@ const router = Router();
  *       500:
  *         $ref: '#/components/responses/InternalServerError'
  */
-router.get('/orphans', deviceController.getOrphanDevices);
+router.get("/orphans", deviceController.getOrphanDevices);
 
 /**
  * @swagger
@@ -49,7 +52,8 @@ router.get('/orphans', deviceController.getOrphanDevices);
  *       500:
  *         $ref: '#/components/responses/InternalServerError'
  */
-router.post('/', 
+router.post(
+  "/",
   validateRequest({ body: CreatePeripheralDeviceSchema }),
   deviceController.createDevice
 );
@@ -72,7 +76,7 @@ router.post('/',
  *       500:
  *         $ref: '#/components/responses/InternalServerError'
  */
-router.get('/', deviceController.listDevices);
+router.get("/", deviceController.listDevices);
 
 /**
  * @swagger
@@ -100,7 +104,7 @@ router.get('/', deviceController.listDevices);
  *       500:
  *         $ref: '#/components/responses/InternalServerError'
  */
-router.get('/:id', deviceController.getDeviceById);
+router.get("/:id", deviceController.getDeviceById);
 
 /**
  * @swagger
@@ -136,7 +140,8 @@ router.get('/:id', deviceController.getDeviceById);
  *       500:
  *         $ref: '#/components/responses/InternalServerError'
  */
-router.patch('/:id',
+router.patch(
+  "/:id",
   validateRequest({ body: UpdatePeripheralDeviceSchema }),
   deviceController.updateDevice
 );
@@ -163,6 +168,6 @@ router.patch('/:id',
  *       500:
  *         $ref: '#/components/responses/InternalServerError'
  */
-router.delete('/:id', deviceController.deleteDevice);
+router.delete("/:id", deviceController.deleteDevice);
 
 export default router;

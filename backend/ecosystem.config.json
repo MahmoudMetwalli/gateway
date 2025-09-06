@@ -1,0 +1,26 @@
+{
+  "apps": [
+    {
+      "name": "gateway-api",
+      "script": "dist/index.js",
+      "instances": "max",
+      "exec_mode": "cluster",
+      "max_memory_restart": "300M",
+      "min_uptime": "10s",
+      "max_restarts": 5,
+      "restart_delay": 4000,
+      "env": {
+        "NODE_ENV": "production",
+        "PORT": 3000
+      },
+      "log_date_format": "YYYY-MM-DD HH:mm:ss Z",
+      "combine_logs": true,
+      "merge_logs": true,
+      "time": true,
+      "error_file": "/app/logs/pm2-error.log",
+      "out_file": "/app/logs/pm2-out.log",
+      "log_file": "/app/logs/pm2-combined.log",
+      "pid_file": "/app/logs/pm2.pid"
+    }
+  ]
+}

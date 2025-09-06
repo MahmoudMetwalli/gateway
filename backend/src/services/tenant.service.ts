@@ -1,4 +1,4 @@
-import { prisma } from  "../config";
+import { prisma } from  "../config/database.js";
 import { Prisma } from "@prisma/client";
 
 export async function createTenant(data: Prisma.TenantCreateInput) {

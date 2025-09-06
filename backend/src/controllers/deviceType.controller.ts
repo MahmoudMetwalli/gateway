@@ -2,9 +2,9 @@ import type { Request, Response, NextFunction } from "express";
 import type {
   CreateDeviceTypeDTO,
   UpdateDeviceTypeDTO,
-} from "../schemas/deviceType.schema";
-import * as deviceTypeService from "../services/deviceType.service";
-import wrapAsync from "../utils/errorCatcher";
+} from "../schemas/deviceType.schema.js";
+import * as deviceTypeService from "../services/deviceType.service.js";
+import wrapAsync from "../utils/errorCatcher.js";
 
 const createDeviceType = async (
   req: Request,

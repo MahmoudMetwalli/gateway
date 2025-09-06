@@ -1,56 +1,41 @@
-import * as tenantRepo from '../repositories/tenant.repository';
-export const createTenant = async (req, res, next) => {
-    try {
-        const tenantData = req.body;
-        const newTenant = await tenantRepo.createTenant(tenantData);
-        res.status(201).json(newTenant);
-    }
-    catch (error) {
-        next(error);
-    }
+import * as tenantService from "../services/tenant.service.js";
+import { serialize } from "../utils/serializer.js";
+import wrapAsync from "../utils/errorCatcher.js";
+const createTenant = async (req, res, next) => {
+    const tenantData = req.body;
+    const newTenant = await tenantService.createTenant(tenantData);
+    res.status(201).json(newTenant);
 };
-export const listTenants = async (req, res, next) => {
-    try {
-        const tenants = await tenantRepo.listTenants();
-        res.json(tenants);
-    }
-    catch (error) {
-        next(error);
-    }
+const listTenants = async (req, res, next) => {
+    const tenants = await tenantService.listTenants();
+    res.json(serialize(tenants));
 };
-export const getTenantById = async (req, res, next) => {
-    try {
-        const { id } = req.params;
-        const tenant = await tenantRepo.getTenantById(id);
-        if (!tenant) {
-            res.status(404).json({ error: 'Tenant not found' });
-            return;
-        }
-        res.json(tenant);
+const getTenantById = async (req, res, next) => {
+    const { id } = req.params;
+    const tenant = await tenantService.getTenantById(id);
+    if (!tenant) {
+        res.status(404).json({ error: "Tenant not found" });
+        return;
     }
-    catch (error) {
-        next(error);
-    }
+    res.json(serialize(tenant));
 };
-export const updateTenant = async (req, res, next) => {
-    try {
-        const { id } = req.params;
-        const tenantData = req.body;
-        const updatedTenant = await tenantRepo.updateTenant(id, tenantData);
-        res.json(updatedTenant);
-    }
-    catch (error) {
-        next(error);
-    }
+const updateTenant = async (req, res, next) => {
+    const { id } = req.params;
+    const tenantData = req.body;
+    const updatedTenant = await tenantService.updateTenant(id, tenantData);
+    res.json(updatedTenant);
 };
-export const deleteTenant = async (req, res, next) => {
-    try {
-        const { id } = req.params;
-        await tenantRepo.deleteTenant(id);
-        res.status(204).send();
-    }
-    catch (error) {
-        next(error);
-    }
+const deleteTenant = async (req, res, next) => {
+    const { id } = req.params;
+    await tenantService.deleteTenant(id);
+    res.status(204).send();
 };
+const tenantController = {
+    createTenant: wrapAsync(createTenant),
+    listTenants: wrapAsync(listTenants),
+    getTenantById: wrapAsync(getTenantById),
+    updateTenant: wrapAsync(updateTenant),
+    deleteTenant: wrapAsync(deleteTenant),
+};
+export default tenantController;
 //# sourceMappingURL=tenant.controller.js.map

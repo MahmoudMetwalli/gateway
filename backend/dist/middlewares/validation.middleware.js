@@ -1,5 +1,5 @@
 import { z, ZodError } from 'zod';
-export const validateRequest = (schemas) => {
+const validateRequest = (schemas) => {
     return (req, res, next) => {
         const errors = [];
         // Validate each provided schema
@@ -36,11 +36,5 @@ export const validateRequest = (schemas) => {
         next();
     };
 };
-// Common parameter schemas
-export const UuidParamSchema = z.object({
-    id: z.uuid('Invalid UUID format')
-});
-export const DeviceAttachSchema = z.object({
-    deviceId: z.uuid('Invalid device ID format')
-});
+export default validateRequest;
 //# sourceMappingURL=validation.middleware.js.map

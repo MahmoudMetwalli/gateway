@@ -1,11 +1,11 @@
 import type { Request, Response, NextFunction } from "express";
-import * as deviceService from "../services/device.service";
+import * as deviceService from "../services/device.service.js";
 import type {
   CreatePeripheralDeviceDTO,
   UpdatePeripheralDeviceDTO,
-} from "../schemas/device.schema";
-import { serialize } from "../utils/serializer";
-import wrapAsync from "../utils/errorCatcher";
+} from "../schemas/device.schema.js";
+import { serialize } from "../utils/serializer.js";
+import wrapAsync from "../utils/errorCatcher.js";
 
 const createDevice = async (
   req: Request,

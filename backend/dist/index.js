@@ -1,9 +1,6 @@
-import express from 'express';
-import { PORT } from './config';
-const app = express();
-app.get('/', (req, res) => {
-    res.json({ message: 'Gateway API is running!' });
-});
+import app from './app.js';
+import { PORT } from './config/port.js';
+// Start the server
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });

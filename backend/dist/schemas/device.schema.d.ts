@@ -15,23 +15,23 @@ export declare const PeripheralDeviceSchema: z.ZodObject<{
     device_type_id: z.ZodNumber;
 }, z.core.$strip>;
 export declare const CreatePeripheralDeviceSchema: z.ZodObject<{
-    uid: z.ZodString;
-    vendor: z.ZodString;
     status: z.ZodEnum<{
         ONLINE: "ONLINE";
         OFFLINE: "OFFLINE";
         MAINTENANCE: "MAINTENANCE";
     }>;
-    gateway_id: z.ZodOptional<z.ZodString>;
+    uid: z.ZodString;
+    vendor: z.ZodString;
     device_type_id: z.ZodNumber;
+    gateway_id: z.ZodOptional<z.ZodString>;
 }, z.core.$strip>;
 export declare const UpdatePeripheralDeviceSchema: z.ZodObject<{
-    vendor: z.ZodOptional<z.ZodString>;
     status: z.ZodOptional<z.ZodEnum<{
         ONLINE: "ONLINE";
         OFFLINE: "OFFLINE";
         MAINTENANCE: "MAINTENANCE";
     }>>;
+    vendor: z.ZodOptional<z.ZodString>;
     device_type_id: z.ZodOptional<z.ZodNumber>;
     last_seen_at: z.ZodOptional<z.ZodOptional<z.ZodDate>>;
 }, z.core.$strip>;

@@ -2,11 +2,11 @@ import type { Request, Response, NextFunction } from "express";
 import type {
   CreateGatewayDTO,
   UpdateGatewayDTO,
-} from "../schemas/gateway.schema";
-import * as gatewayService from "../services/gateway.service";
-import * as deviceService from "../services/device.service";
-import { serialize } from "../utils/serializer";
-import wrapAsync from "../utils/errorCatcher";
+} from "../schemas/gateway.schema.js";
+import * as gatewayService from "../services/gateway.service.js";
+import * as deviceService from "../services/device.service.js";
+import { serialize } from "../utils/serializer.js";
+import wrapAsync from "../utils/errorCatcher.js";
 
 const createGateway = async (
   req: Request,

@@ -108,8 +108,8 @@ gateway/
 
 1. **Clone and install dependencies**:
    ```bash
-   cd gateway
-   npm install
+   cd gateway/backend
+   npm ci
    ```
 
 2. **Environment Setup**:
@@ -138,7 +138,128 @@ gateway/
    npm start
    ```
 
-## 📡 API Endpoints
+## Docker Setup
+
+### Prerequisites for Docker
+- Docker Engine 20.10+
+- Docker Compose 2.0+
+
+### Quick Start with Docker Compose
+
+1. **Production deployment**:
+   ```bash
+   # Build and start all services
+   docker-compose up -d
+   
+   # View logs
+   docker-compose logs -f backend
+   
+   # Stop services
+   docker-compose down
+   ```
+
+2. **Development with hot reload**:
+   ```bash
+   # Start development environment
+   docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d backend-dev
+   
+   # View development logs
+   docker-compose logs -f backend-dev
+   ```
+
+### Manual Docker Build
+
+1. **Build production image**:
+   ```bash
+   docker build -t gateway-backend .
+   ```
+
+2. **Run with external database**:
+   ```bash
+   docker run -d \
+     --name gateway-backend \
+     -p 3000:3000 \
+     -e DATABASE_URL="postgresql://user:pass@host:5432/db" \
+     -e NODE_ENV=production \
+     gateway-backend
+   ```
+
+### Docker Services
+
+The Docker setup includes:
+
+- **PostgreSQL**: Database with persistent volume
+- **Backend API**: Node.js application with PM2 process management
+- **Development Mode**: Hot reload support with volume mounting
+- **PM2 Features**: Clustering, auto-restart, memory monitoring
+
+### PM2 Process Management
+
+The production container uses PM2 for:
+- **Clustering**: Utilizes all CPU cores with `instances: "max"`
+- **Auto-restart**: Automatic restart on crashes or memory limits
+- **Memory monitoring**: Restart when memory usage exceeds 300MB
+- **Log management**: Centralized logging with rotation
+- **Health checks**: Built-in process monitoring
+
+### Environment Variables for Docker
+
+```env
+# Database
+DATABASE_URL=postgresql://gateway_user:gateway_pass@postgres:5432/gateway_db
+
+# Application
+NODE_ENV=production
+PORT=3000
+```
+
+### Docker Health Checks
+
+- **Database**: PostgreSQL connection check
+- **Backend**: HTTP health endpoint check
+- **Restart Policy**: Automatic restart unless stopped
+
+### Development Debugging
+
+Access the development container:
+```bash
+# Execute shell in running container
+docker-compose exec backend-dev sh
+
+# View real-time logs
+docker-compose logs -f backend-dev
+
+# Debug with VS Code
+# The development container exposes port 9229 for debugging
+```
+
+### PM2 Management Commands
+
+Monitor and manage the PM2 processes in production:
+```bash
+# Access the production container
+docker-compose exec backend sh
+
+# View PM2 status
+pm2 status
+
+# View logs
+pm2 logs gateway-api
+
+# Monitor resources
+pm2 monit
+
+# Restart application
+pm2 restart gateway-api
+
+# Reload application (zero-downtime)
+pm2 reload gateway-api
+
+# View PM2 dashboard
+pm2 web
+```
+
+## API Endpoints
 
 ### Health Check
 - `GET /` - API health check
@@ -187,7 +308,7 @@ npm run test
 
 - `/api-docs` - Swagger API Docs
 
-## 🚦 Business Rules Implemented
+## Business Rules Implemented
 
 1. **Gateway Limits**: Each gateway can have a maximum of 10 devices (enforced via database trigger)
 2. **Unique Constraints**: Gateway serial numbers and IPv4 addresses must be unique

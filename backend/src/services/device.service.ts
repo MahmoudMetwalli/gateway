@@ -1,5 +1,4 @@
-import { tr } from "zod/locales";
-import { prisma } from "../config";
+import { prisma } from "../config/database.js";
 import { Prisma } from "@prisma/client";
 
 export async function uidExists(uid: bigint): Promise<boolean> {

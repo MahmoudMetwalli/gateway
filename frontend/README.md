@@ -1,73 +1,127 @@
-# Welcome to your Lovable project
+# Gateway Management Frontend
 
-## Project info
+A modern React-based web application for managing IoT gateways and peripheral devices, built with TypeScript, React 18, Vite, and shadcn/ui components.
 
-**URL**: https://lovable.dev/projects/4f6ddf79-89f7-4f3b-b1e9-03086537007f
+- **Gateway Management**: Interactive dashboard for gateway CRUD operations
+- **Device Management**: Comprehensive device lifecycle management
+- **Tenant Administration**: Multi-tenant interface support
 
-## How can I edit this code?
+## Project Structure
 
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/4f6ddf79-89f7-4f3b-b1e9-03086537007f) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```
+frontend/
+├── src/
+│   ├── components/            # Reusable UI components
+│   │   ├── dashboard/        # Dashboard-specific components
+│   │   ├── layout/           # Layout components (Header, Sidebar)
+│   │   └── ui/               # shadcn/ui component library
+│   ├── hooks/                # Custom React hooks
+│   ├── lib/                  # Utility libraries and configurations
+│   ├── pages/                # Page components (routes)
+│   │   ├── Dashboard.tsx     # Main dashboard
+│   │   ├── Devices.tsx       # Device management
+│   │   ├── DeviceTypes.tsx   # Device type management
+│   │   ├── Gateways.tsx      # Gateway management
+│   │   ├── Logs.tsx          # System logs viewer
+│   │   └── Tenants.tsx       # Tenant management
+│   ├── services/             # API service layer
+│   │   ├── devices.service.ts
+│   │   ├── gateways.service.ts
+│   │   ├── logs.service.ts
+│   │   └── tenants.service.ts
+│   ├── types/                # TypeScript type definitions
+│   ├── utils/                # Utility functions
+│   ├── App.tsx               # Main application component
+│   └── main.tsx              # Application entry point
+├── public/                   # Static assets
+├── index.html               # HTML template
+└── package.json             # Dependencies and scripts
 ```
 
-**Edit a file directly in GitHub**
+## Tech Stack
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+- **Framework**: React 18
+- **Build Tool**: Vite
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **UI Components**: shadcn/ui (Radix UI primitives)
+- **State Management**: TanStack Query (React Query)
+- **Routing**: React Router v6
+- **Forms**: React Hook Form with Zod validation
+- **HTTP Client**: Axios
+- **Icons**: Lucide React
+- **Charts**: Recharts
+- **Date Handling**: date-fns
 
-**Use GitHub Codespaces**
+## Features
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Core Functionality
 
-## What technologies are used for this project?
+1. **Dashboard** - Overview with key metrics and charts
+   - Gateway status distribution
+   - Device health monitoring
+   - Recent activity logs
+   - Quick action buttons
 
-This project is built with:
+2. **Gateway Management** - Complete gateway lifecycle
+   - Create, read, update, delete gateways
+   - Gateway status management (Active/Inactive)
+   - Device attachment/detachment
+   - Location and network configuration
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+3. **Device Management** - Peripheral device administration
+   - Device CRUD operations
+   - Device type categorization
+   - Gateway assignment management
+   - Device status tracking (Online/Offline/Maintenance)
 
-## How can I deploy this project?
+4. **Tenant Management** - Multi-tenant support
+   - Tenant CRUD operations
+   - Contact information management
+   - Gateway-tenant relationships
 
-Simply open [Lovable](https://lovable.dev/projects/4f6ddf79-89f7-4f3b-b1e9-03086537007f) and click on Share -> Publish.
+5. **System Logs** - Activity monitoring
+   - Real-time log viewing
+   - Action filtering and search
+   - Gateway-specific log filtering
 
-## Can I connect a custom domain to my Lovable project?
+## Setup Instructions
 
-Yes, you can!
+### Prerequisites
+- Node.js (v18+)
+- npm/yarn
+- Backend API running on localhost:3000 Change Accordingly from .env
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+### Installation
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+1. **Clone and install dependencies**:
+   ```bash
+   cd gateway/frontend
+   npm ci
+   ```
+
+2. **Environment Setup**:
+   Create a `.env` file:
+   ```env
+   VITE_API_URL=http://localhost:3000/api Update with you URL
+   ```
+
+3. **Development Server**:
+   ```bash
+   # Start development server with hot reload
+   npm run dev
+   
+   # The app will be available at http://localhost:8080
+   ```
+
+4. **Build for Production**:
+   ```bash
+   # Production build
+   npm run build
+   
+   # Development build
+   npm run build:dev
+   
+   # Preview production build
+   npm run preview
+   ```

@@ -1,7 +1,0 @@
-model Tenant {
-  id            String   @id @default(uuid()) @db.Uuid
-  name          String   @unique
-  contact_email String   @unique
-  created_at    DateTime @default(now())
-  gateways      Gateway[]
-}

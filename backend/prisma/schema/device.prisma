@@ -1,0 +1,25 @@
+enum DeviceStatus {
+  ONLINE
+  OFFLINE
+  MAINTENANCE
+}
+
+model PeripheralDevice {
+  id             String       @id @default(uuid()) @db.Uuid
+  uid            BigInt       @unique
+  vendor         String
+  status         DeviceStatus @default(OFFLINE)
+  created_at     DateTime     @default(now())
+  last_seen      DateTime?
+  gateway        Gateway?      @relation(fields: [gateway_id], references: [id], onDelete: SetNull)
+  gateway_id     String?      @db.Uuid
+  device_type    DeviceType   @relation(fields: [device_type_id], references: [id], onDelete: Restrict)
+  device_type_id Int
+}
+
+model DeviceType {
+  id          Int                @id @default(autoincrement())
+  name        String             @unique
+  description String
+  devices     PeripheralDevice[]
+}

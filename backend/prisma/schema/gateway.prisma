@@ -1,0 +1,27 @@
+enum GatewayStatus {
+  ACTIVE
+  INACTIVE
+  DECOMMISSIONED
+}
+
+model Gateway {
+  id            String             @id @default(uuid()) @db.Uuid
+  serial_number String             @unique
+  name          String
+  ipv4_address  String             @unique
+  status        GatewayStatus      @default(INACTIVE)
+  location      String?
+  created_at    DateTime           @default(now())
+  updated_at    DateTime           @updatedAt
+  devices       PeripheralDevice[]
+  tenant        Tenant           @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  tenant_id     String           @db.Uuid
+}
+
+model GatewayLog {
+  id         String   @id @default(uuid()) @db.Uuid
+  gateway_id String   @db.Uuid
+  action     String
+  details    Json
+  created_at DateTime @default(now())
+}

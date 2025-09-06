@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { validateRequest } from '../middlewares/validation.middleware';
+import validateRequest from '../middlewares/validation.middleware';
 import { CreateDeviceTypeSchema, UpdateDeviceTypeSchema } from '../schemas/deviceType.schema';
-import * as deviceTypeController from '../controllers/deviceType.controller';
+import deviceTypeController from '../controllers/deviceType.controller';
 
 const router = Router();
 
@@ -85,7 +85,7 @@ router.get('/:id', deviceTypeController.getDeviceTypeById);
 /**
  * @swagger
  * /api/device-types/{id}:
- *   put:
+ *   patch:
  *     summary: Update device type
  *     tags: [Device Types]
  *     parameters:

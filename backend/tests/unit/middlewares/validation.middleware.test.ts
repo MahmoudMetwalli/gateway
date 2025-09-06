@@ -1,7 +1,6 @@
-import { jest, describe, test, expect, beforeEach } from '@jest/globals';
 import { z } from 'zod';
 import type { Request, Response, NextFunction } from 'express';
-import { validateRequest, UuidParamSchema, DeviceAttachSchema } from '../../../src/middlewares/validation.middleware';
+import validateRequest from '../../../src/middlewares/validation.middleware';
 
 describe('Validation Middleware', () => {
   let mockRequest: Partial<Request>;
@@ -334,74 +333,6 @@ describe('Validation Middleware', () => {
         })
       ])
     });
-  });
-
-  // ============================================================================
-  // UuidParamSchema Tests
-  // ============================================================================
-
-  it('UuidParamSchema should validate correct UUID', () => {
-    const validData = { id: '123e4567-e89b-12d3-a456-426614174000' };
-    const result = UuidParamSchema.safeParse(validData);
-    
-    expect(result.success).toBe(true);
-    if (result.success) {
-      expect(result.data).toEqual(validData);
-    }
-  });
-
-  it('UuidParamSchema should reject invalid UUID', () => {
-    const invalidData = { id: 'invalid-uuid' };
-    const result = UuidParamSchema.safeParse(invalidData);
-    
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.issues[0]?.message).toBe('Invalid UUID format');
-    }
-  });
-
-  it('UuidParamSchema should reject missing ID', () => {
-    const invalidData = {};
-    const result = UuidParamSchema.safeParse(invalidData);
-    
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.issues[0]?.code).toBe('invalid_type');
-    }
-  });
-
-  // ============================================================================
-  // DeviceAttachSchema Tests
-  // ============================================================================
-
-  it('DeviceAttachSchema should validate correct device ID', () => {
-    const validData = { deviceId: '123e4567-e89b-12d3-a456-426614174000' };
-    const result = DeviceAttachSchema.safeParse(validData);
-    
-    expect(result.success).toBe(true);
-    if (result.success) {
-      expect(result.data).toEqual(validData);
-    }
-  });
-
-  it('DeviceAttachSchema should reject invalid device ID', () => {
-    const invalidData = { deviceId: 'invalid-uuid' };
-    const result = DeviceAttachSchema.safeParse(invalidData);
-    
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.issues[0]!.message).toBe('Invalid device ID format');
-    }
-  });
-
-  it('DeviceAttachSchema should reject missing deviceId', () => {
-    const invalidData = {};
-    const result = DeviceAttachSchema.safeParse(invalidData);
-    
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.issues[0]!.code).toBe('invalid_type');
-    }
   });
 
   // ============================================================================

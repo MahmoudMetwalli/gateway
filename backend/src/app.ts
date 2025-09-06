@@ -4,7 +4,7 @@ import cors from 'cors';
 import morgan from 'morgan';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './config/swagger';
-
+import errorMiddleware from './middlewares/error.middleware';
 // Import routers
 import tenantRouter from './routers/tenant.router';
 import gatewayRouter from './routers/geteway.router';
@@ -53,5 +53,7 @@ app.use('/api/device-types', deviceTypeRouter);
 app.use((req, res, next) => {
   res.status(404).json({ error: 'Route not found' });
 });
+
+app.use(errorMiddleware);
 
 export default app;

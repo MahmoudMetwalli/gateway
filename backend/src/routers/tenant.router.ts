@@ -1,9 +1,8 @@
 import { Router } from "express";
-import type { Request, Response } from 'express';
-import { validateRequest } from '../middlewares/validation.middleware';
+import validateRequest from '../middlewares/validation.middleware';
 import { CreateTenantSchema, UpdateTenantSchema } from '../schemas/tenant.schema';
-import { UuidParamSchema } from '../middlewares/validation.middleware';
-import * as tenantController from '../controllers/tenant.controller';
+import tenantController from '../controllers/tenant.controller';
+
 const router = Router();
 
 /**
@@ -83,7 +82,7 @@ router.get('/:id', tenantController.getTenantById);
 /**
  * @swagger
  * /api/tenants/{id}:
- *   put:
+ *   patch:
  *     summary: Update tenant
  *     tags: [Tenants]
  *     parameters:

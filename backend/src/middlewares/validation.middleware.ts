@@ -1,7 +1,7 @@
 import { z, ZodError } from 'zod';
 import type { Request, Response, NextFunction } from 'express';
 
-export const validateRequest = (schemas: {
+const validateRequest = (schemas: {
   body?: z.ZodSchema;
   params?: z.ZodSchema;
   query?: z.ZodSchema;
@@ -45,11 +45,4 @@ export const validateRequest = (schemas: {
   };
 };
 
-// Common parameter schemas
-export const UuidParamSchema = z.object({
-  id: z.uuid('Invalid UUID format')
-});
-
-export const DeviceAttachSchema = z.object({
-  deviceId: z.uuid('Invalid device ID format')
-});
+export default validateRequest;

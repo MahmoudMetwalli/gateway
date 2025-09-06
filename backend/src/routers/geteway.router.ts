@@ -1,9 +1,8 @@
 import { Router } from "express";
-import { validateRequest } from '../middlewares/validation.middleware';
+import validateRequest from '../middlewares/validation.middleware';
 import { CreateGatewaySchema, UpdateGatewaySchema } from '../schemas/gateway.schema';
 import { DeviceAttachSchema, GatewayLogSchema } from '../schemas/miscellaneous.schema';
-import * as gatewayController from '../controllers/gateway.controller';
-import { z } from 'zod';
+import gatewayController from '../controllers/gateway.controller';
 
 const router = Router();
 
@@ -128,7 +127,7 @@ router.get('/:id', gatewayController.getGatewayById);
 /**
  * @swagger
  * /api/gateways/{id}:
- *   put:
+ *   patch:
  *     summary: Update gateway
  *     tags: [Gateways]
  *     parameters:

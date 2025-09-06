@@ -1,11 +1,11 @@
 // tests/gateway.controller.test.ts
 import request from "supertest";
 import app from "../../../src/app";
-import * as gatewayRepo from "../../../src/repositories/gateway.repository";
-import * as deviceRepo from "../../../src/repositories/device.repository";
+import * as gatewayService from "../../../src/services/gateway.service";
+import * as deviceService from "../../../src/services/device.service";
 
-jest.mock("../../../src/repositories/gateway.repository");
-jest.mock("../../../src/repositories/device.repository");
+jest.mock("../../../src/services/gateway.service");
+jest.mock("../../../src/services/device.service");
 
 describe("Gateway Controller", () => {
   beforeEach(() => {
@@ -54,7 +54,7 @@ describe("Gateway Controller", () => {
   // ============================================================================
   
   it("POST /api/gateways should create a new gateway", async () => {
-    (gatewayRepo.createGateway as jest.Mock).mockResolvedValue(mockGateway);
+    (gatewayService.createGateway as jest.Mock).mockResolvedValue(mockGateway);
     const response = await request(app).post("/api/gateways").send({
       name: "Test Gateway",
       serial_number: "TG001",
@@ -71,7 +71,7 @@ describe("Gateway Controller", () => {
   // ============================================================================
   
   it("POST /api/gateways should create a new gateway", async () => {
-    (gatewayRepo.createGateway as jest.Mock).mockResolvedValue(mockGateway);
+    (gatewayService.createGateway as jest.Mock).mockResolvedValue(mockGateway);
     const response = await request(app).post("/api/gateways").send({
       name: "Test Gateway",
       serial_number: "TG001",
@@ -87,7 +87,7 @@ describe("Gateway Controller", () => {
   // ============================================================================
   
   it("GET /api/gateways/:id should return a gateway by ID", async () => {
-    (gatewayRepo.getGatewayById as jest.Mock).mockResolvedValue(mockGateway);
+    (gatewayService.getGatewayById as jest.Mock).mockResolvedValue(mockGateway);
     const response = await request(app).get(`/api/gateways/${mockGateway!.id}`);
     expect(response.status).toBe(200);
     expect(response.body).toEqual(mockGateway);
@@ -98,7 +98,7 @@ describe("Gateway Controller", () => {
   // ============================================================================
   
   it("GET /api/gateways should return a list of gateways", async () => {
-    (gatewayRepo.listGateways as jest.Mock).mockResolvedValue(mockGateways);
+    (gatewayService.listGateways as jest.Mock).mockResolvedValue(mockGateways);
     const response = await request(app).get("/api/gateways");
     expect(response.status).toBe(200);
     expect(response.body).toEqual(mockGateways);
@@ -121,7 +121,7 @@ describe("Gateway Controller", () => {
   // ============================================================================
   
   it("DELETE /api/gateways/:id should return 404 if gateway not found", async () => {
-    (gatewayRepo.getGatewayById as jest.Mock).mockResolvedValue(null);
+    (gatewayService.getGatewayById as jest.Mock).mockResolvedValue(null);
     const response = await request(app).delete(
       `/api/gateways/${mockGateway!.id}`
     );
@@ -134,8 +134,8 @@ describe("Gateway Controller", () => {
   // ============================================================================
   
   it("PATCH /api/gateways/:id should update a gateway by ID", async () => {
-    (gatewayRepo.getGatewayById as jest.Mock).mockResolvedValue(mockGateway);
-    (gatewayRepo.updateGateway as jest.Mock).mockResolvedValue(mockGateway);
+    (gatewayService.getGatewayById as jest.Mock).mockResolvedValue(mockGateway);
+    (gatewayService.updateGateway as jest.Mock).mockResolvedValue(mockGateway);
     const response = await request(app)
       .patch(`/api/gateways/${mockGateway!.id}`)
       .send({
@@ -154,7 +154,7 @@ describe("Gateway Controller", () => {
   // ============================================================================
   
   it("PATCH /api/gateways/:id should return 404 if gateway not found", async () => {
-    (gatewayRepo.getGatewayById as jest.Mock).mockResolvedValue(null);
+    (gatewayService.getGatewayById as jest.Mock).mockResolvedValue(null);
     const response = await request(app)
       .patch(`/api/gateways/${mockGateway!.id}`)
       .send({
@@ -173,7 +173,7 @@ describe("Gateway Controller", () => {
   // ============================================================================
   
   it("POST /api/gateways/:id/devices should return 400 for invalid data", async () => {
-    (gatewayRepo.getGatewayById as jest.Mock).mockResolvedValue(mockGateway);
+    (gatewayService.getGatewayById as jest.Mock).mockResolvedValue(mockGateway);
     const response = await request(app)
       .post(`/api/gateways/${mockGateway!.id}/devices`)
       .send({
@@ -189,8 +189,8 @@ describe("Gateway Controller", () => {
   // ============================================================================
   
   it("POST /api/gateways/:id/devices should attach a device to a gateway", async () => {
-    (gatewayRepo.getGatewayById as jest.Mock).mockResolvedValue(mockGateway);
-    (deviceRepo.getDeviceById as jest.Mock).mockResolvedValue({
+    (gatewayService.getGatewayById as jest.Mock).mockResolvedValue(mockGateway);
+    (deviceService.getDeviceById as jest.Mock).mockResolvedValue({
       id: "5aa47e2d-6c82-44a3-8737-49ff42bb7253",
       uid: "789789789",
       vendor: "Test Vendor",
@@ -200,7 +200,7 @@ describe("Gateway Controller", () => {
       gateway_id: null,
       device_type_id: 1,
     });
-    (deviceRepo.attachDeviceToGateway as jest.Mock).mockResolvedValue({
+    (deviceService.attachDeviceToGateway as jest.Mock).mockResolvedValue({
       id: "5aa47e2d-6c82-44a3-8737-49ff42bb7253",
       uid: "789789789",
       vendor: "Test Vendor",
@@ -231,7 +231,7 @@ describe("Gateway Controller", () => {
   // ============================================================================
   
   it("DELETE /api/gateways/:id/devices/:deviceId should return 404 if gateway not found", async () => {
-    (gatewayRepo.getGatewayById as jest.Mock).mockResolvedValue(null);
+    (gatewayService.getGatewayById as jest.Mock).mockResolvedValue(null);
     const response = await request(app).delete(
       `/api/gateways/${
         mockGateway!.id
@@ -246,8 +246,8 @@ describe("Gateway Controller", () => {
   // ============================================================================
   
   it("DELETE /api/gateways/:id/devices/:deviceId should return 404 if device not found", async () => {
-    (gatewayRepo.getGatewayById as jest.Mock).mockResolvedValue(mockGateway);
-    (deviceRepo.getDeviceById as jest.Mock).mockResolvedValue(null);
+    (gatewayService.getGatewayById as jest.Mock).mockResolvedValue(mockGateway);
+    (deviceService.getDeviceById as jest.Mock).mockResolvedValue(null);
     const response = await request(app).delete(
       `/api/gateways/${
         mockGateway!.id
@@ -262,8 +262,8 @@ describe("Gateway Controller", () => {
   // ============================================================================
   
   it("DELETE /api/gateways/:id/devices/:deviceId should detach a device from a gateway", async () => {
-    (gatewayRepo.getGatewayById as jest.Mock).mockResolvedValue(mockGateway);
-    (deviceRepo.getDeviceById as jest.Mock).mockResolvedValue({
+    (gatewayService.getGatewayById as jest.Mock).mockResolvedValue(mockGateway);
+    (deviceService.getDeviceById as jest.Mock).mockResolvedValue({
       id: "5aa47e2d-6c82-44a3-8737-49ff42bb7253",
       uid: "789789789",
       vendor: "Test Vendor",
@@ -273,7 +273,7 @@ describe("Gateway Controller", () => {
       gateway_id: mockGateway!.id,
       device_type_id: 1,
     });
-    (deviceRepo.detachDeviceFromGateway as jest.Mock).mockResolvedValue({
+    (deviceService.detachDeviceFromGateway as jest.Mock).mockResolvedValue({
       id: "5aa47e2d-6c82-44a3-8737-49ff42bb7253",
       uid: "789789789",
       vendor: "Test Vendor",

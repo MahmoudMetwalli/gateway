@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
 import type { CreateDeviceTypeDTO, UpdateDeviceTypeDTO } from '../schemas/deviceType.schema';
-import * as deviceTypeRepo from '../repositories/deviceType.repository';
+import * as deviceTypeService from '../services/deviceType.service';
 
 export const createDeviceType = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -12,7 +12,7 @@ export const createDeviceType = async (req: Request, res: Response, next: NextFu
       description: deviceTypeData.description,
     };
 
-    const newDeviceType = await deviceTypeRepo.createDeviceType(prismaData);
+    const newDeviceType = await deviceTypeService.createDeviceType(prismaData);
     res.status(201).json(newDeviceType);
   } catch (error) {
     next(error);
@@ -21,7 +21,7 @@ export const createDeviceType = async (req: Request, res: Response, next: NextFu
 
 export const listDeviceTypes = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const deviceTypes = await deviceTypeRepo.listDeviceTypes();
+    const deviceTypes = await deviceTypeService.listDeviceTypes();
     res.json(deviceTypes);
   } catch (error) {
     next(error);
@@ -30,7 +30,7 @@ export const listDeviceTypes = async (req: Request, res: Response, next: NextFun
 export const getDeviceTypeById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { id } = req.params;
-    const deviceType = await deviceTypeRepo.getDeviceTypeById(Number(id));
+    const deviceType = await deviceTypeService.getDeviceTypeById(Number(id));
     
     if (!deviceType) {
       res.status(404).json({ error: 'Device type not found' });
@@ -49,7 +49,7 @@ export const updateDeviceType = async (req: Request, res: Response, next: NextFu
     const deviceTypeData: UpdateDeviceTypeDTO = req.body;
 
     // Check if device type exists
-    const existingDeviceType = await deviceTypeRepo.getDeviceTypeById(Number(id));
+    const existingDeviceType = await deviceTypeService.getDeviceTypeById(Number(id));
     if (!existingDeviceType) {
       res.status(404).json({ error: 'Device type not found' });
       return;
@@ -60,7 +60,7 @@ export const updateDeviceType = async (req: Request, res: Response, next: NextFu
     if (deviceTypeData.name !== undefined) updateData.name = deviceTypeData.name;
     if (deviceTypeData.description !== undefined) updateData.description = deviceTypeData.description;
 
-    const updatedDeviceType = await deviceTypeRepo.updateDeviceType(Number(id), updateData);
+    const updatedDeviceType = await deviceTypeService.updateDeviceType(Number(id), updateData);
     res.json(updatedDeviceType);
   } catch (error) {
     next(error);
@@ -72,13 +72,13 @@ export const deleteDeviceType = async (req: Request, res: Response, next: NextFu
     const { id } = req.params;
     
     // Check if device type exists
-    const existingDeviceType = await deviceTypeRepo.getDeviceTypeById(Number(id));
+    const existingDeviceType = await deviceTypeService.getDeviceTypeById(Number(id));
     if (!existingDeviceType) {
       res.status(404).json({ error: 'Device type not found' });
       return;
     }
 
-    await deviceTypeRepo.deleteDeviceType(Number(id));
+    await deviceTypeService.deleteDeviceType(Number(id));
     res.status(204).send();
   } catch (error) {
     next(error);

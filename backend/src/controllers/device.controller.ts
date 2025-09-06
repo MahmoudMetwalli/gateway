@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
-import * as deviceRepo from '../repositories/device.repository';
+import * as deviceService from '../services/device.service';
 import type { CreatePeripheralDeviceDTO, UpdatePeripheralDeviceDTO } from '../schemas/device.schema';
 import { serialize } from '../utils/serializer';
 
@@ -8,7 +8,7 @@ export const createDevice = async (req: Request, res: Response, next: NextFuncti
     const deviceData: CreatePeripheralDeviceDTO = req.body;
     
     // Check if UID already exists
-    const uidExists = await deviceRepo.uidExists(BigInt(deviceData.uid));
+    const uidExists = await deviceService.uidExists(BigInt(deviceData.uid));
     if (uidExists) {
       res.status(409).json({ error: 'Device UID already exists' });
       return;
@@ -29,7 +29,7 @@ export const createDevice = async (req: Request, res: Response, next: NextFuncti
       })
     };
 
-    const newDevice = await deviceRepo.createDevice(prismaData);
+    const newDevice = await deviceService.createDevice(prismaData);
     res.status(201).json(serialize(newDevice));
   } catch (error) {
     next(error);
@@ -38,7 +38,7 @@ export const createDevice = async (req: Request, res: Response, next: NextFuncti
 
 export const listDevices = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const devices = await deviceRepo.listDevices();
+    const devices = await deviceService.listDevices();
     res.json(serialize(devices));
   } catch (error) {
     next(error);
@@ -48,7 +48,7 @@ export const listDevices = async (req: Request, res: Response, next: NextFunctio
 export const getDeviceById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { id } = req.params;
-    const device = await deviceRepo.getDeviceById(id!);
+    const device = await deviceService.getDeviceById(id!);
     
     if (!device) {
       res.status(404).json({ error: 'Device not found' });
@@ -67,7 +67,7 @@ export const updateDevice = async (req: Request, res: Response, next: NextFuncti
     const deviceData: UpdatePeripheralDeviceDTO = req.body;
     
     // Check if device exists
-    const existingDevice = await deviceRepo.getDeviceById(id!);
+    const existingDevice = await deviceService.getDeviceById(id!);
     if (!existingDevice) {
       res.status(404).json({ error: 'Device not found' });
       return;
@@ -84,7 +84,7 @@ export const updateDevice = async (req: Request, res: Response, next: NextFuncti
       };
     }
 
-    const updatedDevice = await deviceRepo.updateDevice(id!, updateData);
+    const updatedDevice = await deviceService.updateDevice(id!, updateData);
     res.json(serialize(updatedDevice));
   } catch (error) {
     next(error);
@@ -96,13 +96,13 @@ export const deleteDevice = async (req: Request, res: Response, next: NextFuncti
     const { id } = req.params;
     
     // Check if device exists
-    const existingDevice = await deviceRepo.getDeviceById(id!);
+    const existingDevice = await deviceService.getDeviceById(id!);
     if (!existingDevice) {
       res.status(404).json({ error: 'Device not found' });
       return;
     }
 
-    await deviceRepo.deleteDevice(id!);
+    await deviceService.deleteDevice(id!);
     res.status(204).send();
   } catch (error) {
     next(error);
@@ -111,7 +111,7 @@ export const deleteDevice = async (req: Request, res: Response, next: NextFuncti
 
 export const getOrphanDevices = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const devices = await deviceRepo.getOrphanDevices();
+    const devices = await deviceService.getOrphanDevices();
     res.json(serialize(devices));
   } catch (error) {
     next(error);

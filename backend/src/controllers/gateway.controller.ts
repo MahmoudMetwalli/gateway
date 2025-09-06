@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 import type { CreateGatewayDTO, UpdateGatewayDTO } from '../schemas/gateway.schema';
-import * as gatewayRepo from '../repositories/gateway.repository';
-import * as deviceRepo from '../repositories/device.repository';
+import * as gatewayService from '../services/gateway.service';
+import * as deviceService from '../services/device.service';
 import { serialize } from '../utils/serializer';
 
 export const createGateway = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -9,14 +9,14 @@ export const createGateway = async (req: Request, res: Response, next: NextFunct
     const gatewayData: CreateGatewayDTO = req.body;
     
     // Check if serial number already exists
-    const serialExists = await gatewayRepo.serialNumberExists(gatewayData.serial_number);
+    const serialExists = await gatewayService.serialNumberExists(gatewayData.serial_number);
     if (serialExists) {
       res.status(409).json({ error: 'Gateway serial number already exists' });
       return;
     }
 
     // Check if IPv4 address already exists
-    const ipExists = await gatewayRepo.ipv4AddressExists(gatewayData.ipv4_address);
+    const ipExists = await gatewayService.ipv4AddressExists(gatewayData.ipv4_address);
     if (ipExists) {
       res.status(409).json({ error: 'Gateway IPv4 address already exists' });
       return;
@@ -34,9 +34,9 @@ export const createGateway = async (req: Request, res: Response, next: NextFunct
       }
     };
 
-    const newGateway = await gatewayRepo.createGateway(prismaData);
+    const newGateway = await gatewayService.createGateway(prismaData);
     
-    await gatewayRepo.createGatewayLog(newGateway.id, 'CREATED', {
+    await gatewayService.createGatewayLog(newGateway.id, 'CREATED', {
       name: newGateway.name,
       serial_number: newGateway.serial_number,
       ipv4_address: newGateway.ipv4_address
@@ -50,7 +50,7 @@ export const createGateway = async (req: Request, res: Response, next: NextFunct
 
 export const listGateways = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const gateways = await gatewayRepo.listGateways();
+    const gateways = await gatewayService.listGateways();
     res.json(serialize(gateways));
   } catch (error) {
     next(error);
@@ -60,7 +60,7 @@ export const listGateways = async (req: Request, res: Response, next: NextFuncti
 export const getGatewayById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { id } = req.params;
-    const gateway = await gatewayRepo.getGatewayById(id!);
+    const gateway = await gatewayService.getGatewayById(id!);
     
     if (!gateway) {
       res.status(404).json({ error: 'Gateway not found' });
@@ -79,7 +79,7 @@ export const updateGateway = async (req: Request, res: Response, next: NextFunct
     const gatewayData: UpdateGatewayDTO = req.body;
     
     // Check if gateway exists
-    const existingGateway = await gatewayRepo.getGatewayById(id!);
+    const existingGateway = await gatewayService.getGatewayById(id!);
     if (!existingGateway) {
       res.status(404).json({ error: 'Gateway not found' });
       return;
@@ -87,7 +87,7 @@ export const updateGateway = async (req: Request, res: Response, next: NextFunct
 
     // Check if IPv4 address already exists (if being updated)
     if (gatewayData.ipv4_address && gatewayData.ipv4_address !== existingGateway.ipv4_address) {
-      const ipExists = await gatewayRepo.ipv4AddressExists(gatewayData.ipv4_address);
+      const ipExists = await gatewayService.ipv4AddressExists(gatewayData.ipv4_address);
       if (ipExists) {
         res.status(409).json({ error: 'Gateway IPv4 address already exists' });
         return;
@@ -101,9 +101,9 @@ export const updateGateway = async (req: Request, res: Response, next: NextFunct
     if (gatewayData.ipv4_address !== undefined) updateData.ipv4_address = gatewayData.ipv4_address;
     if (gatewayData.location !== undefined) updateData.location = gatewayData.location;
 
-    const updatedGateway = await gatewayRepo.updateGateway(id!, {...updateData});
+    const updatedGateway = await gatewayService.updateGateway(id!, {...updateData});
 
-    await gatewayRepo.createGatewayLog(id!, 'UPDATED', {
+    await gatewayService.createGatewayLog(id!, 'UPDATED', {
       changes: updateData
     });
 
@@ -118,19 +118,19 @@ export const deleteGateway = async (req: Request, res: Response, next: NextFunct
     const { id } = req.params;
     
     // Check if gateway exists
-    const existingGateway = await gatewayRepo.getGatewayById(id!);
+    const existingGateway = await gatewayService.getGatewayById(id!);
     if (!existingGateway) {
       res.status(404).json({ error: 'Gateway not found' });
       return;
     }
 
     // Log gateway deletion
-    await gatewayRepo.createGatewayLog(id!, 'DELETED', {
+    await gatewayService.createGatewayLog(id!, 'DELETED', {
       user: 'system',
       gateway_data: serialize(existingGateway)
     });
 
-    await gatewayRepo.deleteGateway(id!);
+    await gatewayService.deleteGateway(id!);
     res.status(204).send();
   } catch (error) {
     next(error);
@@ -143,21 +143,21 @@ export const attachDevice = async (req: Request, res: Response, next: NextFuncti
     const { deviceId } = req.body;
 
     // Check if gateway exists
-    const gateway = await gatewayRepo.getGatewayById(gatewayId!);
+    const gateway = await gatewayService.getGatewayById(gatewayId!);
     if (!gateway) {
       res.status(404).json({ error: 'Gateway not found' });
       return;
     }
 
     // Check if device exists
-    const device = await deviceRepo.getDeviceById(deviceId);
+    const device = await deviceService.getDeviceById(deviceId);
     if (!device) {
       res.status(404).json({ error: 'Device not found' });
       return;
     }
 
     // Check device limit (max 10 devices per gateway)
-    const deviceCount = await deviceRepo.countDevicesInGateway(gatewayId!);
+    const deviceCount = await deviceService.countDevicesInGateway(gatewayId!);
     if (deviceCount >= 10) {
       res.status(400).json({ error: 'Gateway already has the maximum number of devices (10)' });
       return;
@@ -169,10 +169,10 @@ export const attachDevice = async (req: Request, res: Response, next: NextFuncti
       return;
     }
 
-    const updatedDevice = await deviceRepo.attachDeviceToGateway(deviceId, gatewayId!);
+    const updatedDevice = await deviceService.attachDeviceToGateway(deviceId, gatewayId!);
     
     // Log device attachment
-    await gatewayRepo.createGatewayLog(gatewayId!, 'DEVICE_ATTACHED', {
+    await gatewayService.createGatewayLog(gatewayId!, 'DEVICE_ATTACHED', {
       user: 'system',
       device_id: deviceId,
       device_uid: device.uid.toString()
@@ -189,14 +189,14 @@ export const detachDevice = async (req: Request, res: Response, next: NextFuncti
     const { id: gatewayId, deviceId } = req.params;
 
     // Check if gateway exists
-    const gateway = await gatewayRepo.getGatewayById(gatewayId!);
+    const gateway = await gatewayService.getGatewayById(gatewayId!);
     if (!gateway) {
       res.status(404).json({ error: 'Gateway not found' });
       return;
     }
 
     // Check if device exists and is attached to this gateway
-    const device = await deviceRepo.getDeviceById(deviceId!);
+    const device = await deviceService.getDeviceById(deviceId!);
     if (!device) {
       res.status(404).json({ error: 'Device not found' });
       return;
@@ -207,10 +207,10 @@ export const detachDevice = async (req: Request, res: Response, next: NextFuncti
       return;
     }
 
-    const updatedDevice = await deviceRepo.detachDeviceFromGateway(deviceId!);
+    const updatedDevice = await deviceService.detachDeviceFromGateway(deviceId!);
     
     // Log device detachment
-    await gatewayRepo.createGatewayLog(gatewayId!, 'DEVICE_DETACHED', {
+    await gatewayService.createGatewayLog(gatewayId!, 'DEVICE_DETACHED', {
       user: 'system',
       device_id: deviceId,
       device_uid: device.uid.toString()
@@ -227,13 +227,13 @@ export const listGatewayLogs = async (req: Request, res: Response, next: NextFun
     const { id: gatewayId } = req.params;
 
     // Check if gateway exists
-    const gateway = await gatewayRepo.getGatewayById(gatewayId!);
+    const gateway = await gatewayService.getGatewayById(gatewayId!);
     if (!gateway) {
       res.status(404).json({ error: 'Gateway not found' });
       return;
     }
 
-    const logs = await gatewayRepo.listGatewayLogs(gatewayId!);
+    const logs = await gatewayService.listGatewayLogs(gatewayId!);
     res.json(serialize(logs));
   } catch (error) {
     next(error);
@@ -242,7 +242,7 @@ export const listGatewayLogs = async (req: Request, res: Response, next: NextFun
 
 export const listAllLogs = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const logs = await gatewayRepo.listAllLogs();
+    const logs = await gatewayService.listAllLogs();
     res.json(serialize(logs));
   } catch (error) {
     next(error);

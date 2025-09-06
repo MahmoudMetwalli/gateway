@@ -20,7 +20,7 @@ A comprehensive IoT Gateway management platform built with modern web technologi
 - **Error Handling**: Centralized error handling and logging
 - **Testing**: Comprehensive test coverage with Jest
 - **Containerization**: Docker support with PM2 process management
-- **Real-time Updates**: Optimistic updates and data synchronization
+
 
 ## Architecture
 
@@ -99,7 +99,7 @@ GRANT ALL PRIVILEGES ON DATABASE gateway_db TO it_admin;
 cd backend
 
 # Install dependencies
-npm install
+npm ci
 
 # Set up environment variables
 cp .env.example .env
@@ -109,7 +109,7 @@ cp .env.example .env
 npx prisma generate
 
 # Run database migrations
-npx prisma migrate dev
+atlas migrate apply --env local
 
 # Start development server
 npm run dev
@@ -122,7 +122,7 @@ npm run dev
 cd frontend
 
 # Install dependencies
-npm install
+npm ci
 
 # Set up environment variables
 cp .env.example .env
@@ -160,12 +160,6 @@ npm run test:watch  # Run tests in watch mode
 npm run test:coverage # Run tests with coverage
 ```
 
-### Frontend Tests
-```bash
-cd frontend
-npm run test        # Run component tests
-npm run test:e2e    # Run end-to-end tests
-```
 
 ## API Documentation
 
@@ -217,33 +211,6 @@ VITE_API_BASE_URL="http://localhost:3000/api"
 VITE_APP_TITLE="IoT Gateway Management"
 ```
 
-## Docker Configuration
-
-### Multi-stage Production Build
-
-The backend includes a multi-stage Dockerfile optimized for production:
-
-- **Security**: Non-root user, minimal attack surface
-- **Performance**: PM2 clustering with auto-restart
-- **Monitoring**: Health checks and centralized logging
-- **Efficiency**: Optimized layer caching and minimal image size
-
-### PM2 Process Management
-
-Production deployment uses PM2 for:
-- **Clustering**: Multiple worker processes
-- **Auto-restart**: Automatic recovery from crashes
-- **Memory monitoring**: Memory leak detection
-- **Log management**: Centralized logging and rotation
-
-## Development
-
-### Code Quality
-
-- **TypeScript**: Full type safety across the stack
-- **ESLint**: Code linting and formatting
-- **Prettier**: Code formatting
-- **Husky**: Git hooks for quality checks
 
 ### Database Management
 
@@ -252,63 +219,7 @@ Production deployment uses PM2 for:
 - **Atlas**: Advanced migration tooling
 - **Seeding**: Database seeding for development
 
-### State Management
 
-- **TanStack Query**: Server state management
-- **React Context**: Client state management
-- **Optimistic Updates**: Real-time UI updates
-
-## Monitoring & Logging
-
-### Backend Monitoring
-- Request/response logging with Morgan
-- Error tracking and centralized logging
-- Performance monitoring
-- Health check endpoints
-
-### Frontend Monitoring
-- Error boundaries for graceful error handling
-- Performance monitoring with Web Vitals
-- User interaction tracking
-
-## Deployment
-
-### Production Checklist
-
-- [ ] Environment variables configured
-- [ ] Database migrations applied
-- [ ] SSL certificates installed
-- [ ] Health checks configured
-- [ ] Monitoring and logging setup
-- [ ] Backup strategy implemented
-- [ ] CI/CD pipeline configured
-
-### Scaling Considerations
-
-- **Horizontal Scaling**: PM2 clustering support
-- **Database Scaling**: Read replicas and connection pooling
-- **Caching**: Redis integration ready
-- **Load Balancing**: Docker Swarm or Kubernetes ready
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-### Development Guidelines
-
-- Follow TypeScript best practices
-- Write comprehensive tests
-- Update documentation
-- Follow semantic commit messages
-- Ensure all linters pass
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Author
 
@@ -316,12 +227,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - GitHub: [@MahmoudMetwalli](https://github.com/MahmoudMetwalli)
 - LinkedIn: [Mahmoud Metwalli](https://linkedin.com/in/mahmoud-metwalli)
 
-## Acknowledgments
 
-- React and TypeScript communities
-- Express.js and Prisma teams
-- shadcn/ui for the component library
-- TanStack for the amazing query library
 
 ---
 
